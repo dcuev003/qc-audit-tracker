@@ -1,0 +1,41 @@
+{
+  "name": "qc-audit-tracker",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Chrome extension for tracking time and data during Outlier AI code audit tasks",
+  "private": true,
+  "author": "zeroxvee",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zeroxvee/qc-audit-tracker.git"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.11",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.525.0",
+    "react": "^19.0.0",
+    "react-aria-components": "^1.10.1",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.1.11"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.0.0",
+    "@eslint/js": "^9.30.0",
+    "@types/chrome": "^0.0.313",
+    "@types/node": "^22.13.14",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.30.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.2.0",
+    "vite-plugin-zip-pack": "^1.2.4"
+  }
+}
