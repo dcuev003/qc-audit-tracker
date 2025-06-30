@@ -13,10 +13,19 @@ export default defineConfig({
 			"@": `${path.resolve(__dirname, "src")}`,
 		},
 	},
+	build: {
+		rollupOptions: {
+			input: {
+				popup: path.resolve(__dirname, "src/ui/popup/index.html"),
+				dashboard: path.resolve(__dirname, "src/ui/dashboard/index.html"),
+			},
+		},
+	},
+	base: "./",
 	plugins: [
 		react(),
 		crx({ manifest }),
-		zip({ outDir: "release", outFileName: `crx-${name}-${version}.zip` }),
+		zip({ outDir: "release", outFileName: `${name}-${version}.zip` }),
 		tailwindcss(),
 	],
 	server: {
