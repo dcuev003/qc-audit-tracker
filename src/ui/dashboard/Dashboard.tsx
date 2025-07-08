@@ -3,7 +3,7 @@ import DashboardTable from "@/ui/dashboard/DashboardTable";
 import { Task } from "@/shared/types/storage";
 import { Filters, DashboardEntry } from "@/types";
 import { ColumnFiltersState } from "@tanstack/react-table";
-import UnifiedFilterBar from "./UnifiedFilterBar";
+import FilterBar from "@/ui/dashboard/FilterBar";
 
 interface DashboardProps {
 	allEntries: DashboardEntry[];
@@ -143,7 +143,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 					</div>
 				)}
 
-				<UnifiedFilterBar
+				<FilterBar
 					filters={filters}
 					setFilters={setFilters}
 					projectIds={projectIds}
