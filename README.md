@@ -1,261 +1,194 @@
-# QC Audit Tracker Chrome Extension (OUTDATED - WILL UPDATE LATER - THE DEV COMMANDS ARE UP TO DATE)
+# QC Audit Tracker
 
-A powerful Chrome extension for automatically tracking time and extracting data during Outlier AI code audit tasks. Features intelligent API interception, real-time timer injection, and a modern React-based dashboard for audit history management.
+A Chrome Extension (Manifest V3) that automatically tracks time spent while auditing on Outlier AI.
 
-## ✨ Features
+## Project Structure
 
-### 🔍 **Automatic Data Extraction**
+```
+qc-audit-tracker/
+├── src/
+│   ├── background/                    # Background service worker
+│   │   ├── index.ts                   # Main service worker entry point
+│   │   ├── timer.ts                   # Timer management with Chrome alarms
+│   │   ├── storage.ts                 # Chrome storage operations
+│   │   ├── messages.ts                # Message handling between contexts
+│   │   └── activeTimerManager.ts      # Real-time timer state management
+│   │
+│   ├── content/                       # Content script (injected into web pages)
+│   │   ├── index.ts                   # Main content script
+│   │   ├── injector.ts                # Script injection utilities
+│   │   └── bridge.ts                  # DOM bridge for timer UI
+│   │
+│   ├── page-scripts/                  # Scripts injected into page context
+│   │   └── interceptor.ts             # API interceptor (compiled to IIFE)
+│   │
+│   ├── shared/                        # Shared modules across contexts
+│   │   ├── types/                     # TypeScript type definitions
+│   │   │   ├── api.ts                 # Outlier API response types
+│   │   │   ├── messages.ts            # Message protocol types
+│   │   │   ├── storage.ts             # Chrome storage schema
+│   │   │   └── activeTimers.ts        # Active timer types
+│   │   ├── constants.ts               # Shared constants
+│   │   ├── logger.ts                  # Centralized logging
+│   │   ├── timeUtils.ts               # Time formatting utilities
+│   │   ├── dateUtils.ts               # Date manipulation utilities
+│   │   └── validation.ts              # Zod validation schemas
+│   │
+│   ├── ui/                            # React UI components
+│   │   ├── popup/                     # Extension popup (260px × 340px)
+│   │   │   ├── App.tsx                # Main popup component
+│   │   │   ├── OffPlatformTimer.tsx   # Off-platform timer
+│   │   │   └── main.tsx               # Popup entry point
+│   │   │
+│   │   ├── dashboard/                 # Full dashboard application
+│   │   │   ├── App.tsx                # Dashboard container
+│   │   │   ├── Dashboard.tsx          # Main dashboard page
+│   │   │   ├── DashboardTable.tsx     # Data table (TanStack)
+│   │   │   ├── FilterBar.tsx          # Filtering controls
+│   │   │   ├── Analytics.tsx          # Analytics & charts
+│   │   │   ├── Settings.tsx           # User preferences
+│   │   │   ├── AddOffPlatformTime.tsx # Manual time entry
+│   │   │   └── main.tsx               # Dashboard entry point
+│   │   │
+│   │   ├── store/                     # Zustand state management
+│   │   │   ├── store.ts               # Main store
+│   │   │   ├── slices/                # Store slices
+│   │   │   │   ├── tasksSlice.ts
+│   │   │   │   ├── settingsSlice.ts
+│   │   │   └── chromeStorageSync.ts   # Chrome storage sync
+│   │   │
+│   │   └── shared/                    # Shared UI components
+│   │       └── ErrorBoundary.tsx
+│   │
+│   ├── types.ts                       # UI-specific types
+│   ├── projectUtils.ts                # Project override utilities
+│   └── manifest.config.ts             # Extension manifest configuration
+│
+├── dist/                              # Built extension (git-ignored)
+├── scripts/                           # Build and utility scripts
+├── .github/workflows/                 # GitHub Actions CI
+└── package.json                       # Dependencies and scripts
+```
 
-- **Smart API Interception**: Intercepts and extracts data from Outlier AI APIs
-- **Task Metadata**: Captures task ID, attempt ID, review level, and project details
-- **State Monitoring**: Real-time monitoring of task state changes and cancellations
-- **Time Limits**: Automatically extracts maximum time requirements
+## Key Components
 
-### ⏱️ **Intelligent Time Tracking**
+### Background Service Worker (`src/background/`)
+- Persistent timer management using Chrome alarms API
+- Message routing between extension contexts
+- Chrome storage operations with type safety
+- Active timer broadcasting to all contexts
 
-- **Auto-Detection**: Automatically starts tracking when audit tasks are detected
-- **Visual Timer**: Injects live timer directly into Outlier AI interface
-- **Overtime Warnings**: Visual indicators when exceeding time limits
-- **Persistent Tracking**: Continues tracking across page refreshes and navigation
+### Content Script (`src/content/`)
+- Monitors Outlier AI audit pages (`/chat_bulk_audit/`)
+- Injects page scripts for API interception
+- Manages timer UI overlay
+- Communicates with background service
 
-### 📊 **Modern Dashboard**
+### Page Script (`src/page-scripts/interceptor.ts`)
+- Compiled to IIFE format for injection
+- Intercepts specific Outlier API endpoints:
+  - `/attemptAudit/{id}` - Task metadata
+  - `/relatedQaOperationForAuditBatch/` - Max time limits
+  - `/complete/` - Task completion
+  - `/transition` - Final submission
+- Extracts project names, IDs, and timing data
 
-- **Audit History**: Complete history of all tracked audit sessions
-- **Advanced Filtering**: Filter by date, project, status, duration
-- **Data Export**: Export audit data for analysis and reporting
-- **Time Analytics**: Duration analysis and productivity insights
+### UI Components (`src/ui/`)
+- **Popup**: Quick access to timer controls and daily progress
+- **Dashboard**: Full-featured time tracking interface
+  - TanStack React Table for data management
+  - Real-time timer updates across all contexts
+  - Multi-format export (CSV, Markdown)
+  - Project override management
 
-### 🎛️ **Flexible Controls**
+### State Management (`src/ui/store/`)
+- Zustand store with Chrome storage synchronization
+- Real-time computed values (daily/weekly hours)
+- Cross-context state updates
+- TypeScript-first architecture
 
-- **Toggle Tracking**: Enable/disable tracking via popup interface
-- **Manual Time Entry**: Add time for work done outside the platform
-- **Task Notes**: Add descriptions and context to time entries
-- **Bulk Operations**: Manage multiple tasks efficiently
+## Installation
 
-## 🚀 Installation
-
-### Quick Install (Recommended)
-
-1. **Download** the latest release or clone this repository
-2. **Build** the extension (see build instructions below)
-3. **Open Chrome** and navigate to `chrome://extensions/`
-4. **Enable Developer Mode** (toggle in top-right corner)
-5. **Click "Load unpacked"** and select the `dist` folder
-6. **Pin the extension** to your toolbar for easy access
-
-### From Source
-
+1. Clone the repository:
 ```bash
-# Clone the repository
-git clone https://github.com/zeroxvee/qc-audit-tracker.git
+git clone https://github.com/your-username/qc-audit-tracker.git
 cd qc-audit-tracker
-
-# Install dependencies and build
-pnpm install
-pnpm build
-
-# Load the dist folder into Chrome as described above
 ```
 
-## 🔨 Building
+2. Install dependencies:
+```bash
+pnpm install
+```
 
-### Prerequisites
+3. Build the extension:
+```bash
+pnpm build
+```
 
-- **Node.js** 18 or higher
-- **pnpm** package manager
-- **Chrome browser** with Developer Mode
+4. Load in Chrome:
+   - Open `chrome://extensions/`
+   - Enable "Developer mode"
+   - Click "Load unpacked"
+   - Select the `dist/` directory
 
-### Build Process (Centralized)
+## Development
 
-You can build the extension from either the **root folder** or the **popup-ui folder**:
-
-#### **From Root Folder **
+### Available Commands
 
 ```bash
-# Install dependencies
-pnpm install
+# Development
+pnpm dev                # Start Vite dev server (for UI development)
+pnpm build              # Build complete extension
+pnpm build:page-scripts # Build only the IIFE interceptor
+pnpm typecheck          # Run TypeScript type checking
+pnpm clean              # Clean dist folder
 
-# Build complete extension
-pnpm run build
-
-pnpm run dev
+# Production
+./build-production.sh   # Build production version
+./create-zip.sh         # Create Chrome Web Store package
 ```
 
+### Development Workflow
 
+1. **Extension Development**: 
+   - Run `pnpm build` to compile the extension
+   - Load/reload extension in Chrome from `dist/` directory
+   - Changes require rebuild and extension reload
 
-## 🌐 Browser Import
+2. **UI Development**:
+   - Run `pnpm dev` for Vite dev server with hot reload
+   - Useful for dashboard UI development
+   - Extension still needs to be built separately
 
-### Chrome/Edge
+3. **Page Script Changes**:
+   - The interceptor requires special IIFE compilation
+   - Run `pnpm build:page-scripts` after changes
+   - Or use full `pnpm build` to rebuild everything
 
-1. Open `chrome://extensions/` (or `edge://extensions/`)
-2. Enable **Developer mode**
-3. Click **"Load unpacked"**
-4. Select the `dist` folder
-5. Extension appears in toolbar
+### Chrome Extension APIs Used
 
-### Firefox (Future Support)
+- `chrome.storage.local` - Data persistence
+- `chrome.runtime` - Message passing
+- `chrome.tabs` - Tab management
+- `chrome.alarms` - Persistent timers
+- `chrome.action` - Extension icon/popup
 
-Firefox support planned for future releases using Manifest V3 compatibility.
+### Security Considerations
 
-## 📁 Project Structure **OUTDATED**
+- Content scripts run in isolated context
+- Page scripts use window.postMessage for communication
+- All data stored locally in Chrome storage
+- No external API calls or data transmission
+- Input validation using Zod schemas
+- TypeScript for type safety throughout
 
-```text
-qc-tracker/
-├── 📁 dist/                    # Built extension (generated)
-├── 📁 popup-ui/               # React UI source code
-│   ├── 📁 src/               # React components
-│   ├── 📁 public/            # Static assets
-│   ├── package.json          # UI dependencies
-│   └── vite.config.js        # Build configuration
-├── 📄 background.js           # Extension service worker
-├── 📄 content.js             # Content script with logging
-├── 📄 interceptor.js         # API interception script
-├── 📄 manifest.json          # Extension configuration
-├── 📁 icons/                 # Extension icons
-├── 📄 package.json           # Root package with build scripts
-├── 📄 pnpm-workspace.yaml    # Workspace configuration
-└── 📄 README.md              # This file
-```
+## Technical Stack
 
-## 🎯 Usage
-
-### Basic Operation
-
-1. **Install and activate** the extension
-2. **Navigate** to Outlier AI audit tasks at `app.outlier.ai`
-3. **Automatic tracking** begins when tasks are detected
-4. **View progress** via the injected timer in the interface
-5. **Access dashboard** through the extension popup
-
-### Dashboard Features
-
-- **View History**: See all completed and ongoing audit sessions
-- **Filter & Search**: Find specific tasks by various criteria
-- **Export Data**: Download audit data as CSV/JSON
-- **Manage Tasks**: Edit notes and metadata for tracked time
-
-### Manual Time Entry
-
-- **Add Off-Platform Time**: Record work done outside the audit interface
-- **Categorize Work**: Assign time to specific projects and task types
-- **Detailed Notes**: Add context and descriptions to time entries
-
-## ⚙️ Configuration
-
-### Extension Permissions
-
-- `storage` - Save audit data and user preferences
-- `tabs` - Open dashboard and forms in new tabs
-- `scripting` - Inject timer and tracking functionality
-- `notifications` - Show system notifications for task events
-- `https://app.outlier.ai/*` - Access Outlier AI domain
-
-### Storage Schema
-
-Audit data is stored locally in Chrome storage:
-
-```typescript
-interface AuditTask {
-  qaOperationId: string;
-  projectId: string;
-  attemptId: string;
-  reviewLevel: number;
-  maxTime: number;        // seconds
-  startTime: number;      // timestamp
-  endTime?: number;       // timestamp
-  duration: number;       // milliseconds
-  status: 'in-progress' | 'completed' | 'canceled';
-}
-```
-
-## 🔧 Development
-
-### Architecture
-
-- **Interceptor Script**: Monitors API calls and extracts data
-- **Content Script**: Manages UI injection and timer display
-- **Background Script**: Handles data processing and state management
-- **React UI**: Modern interface for interaction and data visualization
-
-### Key Technologies
-
-- **Manifest V3**: Latest Chrome extension standard
-- **React 19**: Modern React with hooks and TypeScript
-- **Tailwind CSS v4**: Utility-first CSS framework
-- **Vite**: Fast build tool with HMR
-- **TypeScript**: Type-safe development
-
-### Debugging
-
-1. **Extension Console**: Right-click extension → "Inspect popup"
-2. **Content Script**: F12 on Outlier AI pages → Console tab
-3. **Background Script**: `chrome://extensions/` → Extension details → "Inspect views"
-
-## 📊 Monitoring & Logging
-
-The extension includes comprehensive logging for debugging:
-
-- **[QC Tracker - Interceptor]**: API interception and data extraction
-- **[QC Tracker - Content]**: UI injection and timer management  
-- **[QC Tracker - Background]**: Data processing and state changes
-
-Enable Chrome DevTools Console to see detailed operation logs.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly with the built extension
-5. Submit a pull request
-
-### Development Guidelines
-
-- Follow TypeScript strict mode
-- Use conventional commit messages
-- Test all Chrome extension functionality
-- Maintain responsive design principles
-
-## 📄 License
-
-This project is licensed under the MIT License. See LICENSE file for details.
-
-## 🆘 Support
-
-### Common Issues
-
-- **Timer not appearing**: Check console logs for injection errors
-- **Data not saving**: Verify Chrome storage permissions
-- **Extension not loading**: Ensure all files are in dist folder
-
-### Getting Help
-
-- Check the Issues section for known problems
-- Enable detailed logging and share console output
-- Provide your Chrome version and extension version
-
-## 🔮 Roadmap
-
-- [ ] Firefox support with Manifest V3
-- [ ] Advanced analytics and reporting
-- [ ] Team collaboration features
-- [ ] Data synchronization across devices
-- [ ] Enhanced filtering and search capabilities
-
-## Workflow
-
-1. When the audit page is loaded (`https://app.outlier.ai/en/expert/outlieradmin/tools/chat_bulk_audit/*`), this is when the timer starts and all the task audit data is being populated.
-2. The extensions parses project name, id, attempt id, operation id, and max audit time.
-3. During the audit, if the audit operation is cancelled for any reason, the timer stops with the final data being saved.
-4. Otherwise, the timer continues until the user reaches `https://app.outlier.ai/corp-api/chatBulkAudit/complete/*`. This is when the audit is completed, but not fully submitted.
-5. Then if the user reaches `https://app.outlier.ai/corp-api/qm/operations/<id>/transition/*`, this means the audit has reached it's final stage now and the final audit information can be saved.
-
-## How data is being extracted
-
-Each value is extracted from response nodes that are being intercepted.
-
-- **Project name:** `response.nodes?.[0]?.qaOperation?.name` and the actual project name part extracted with `/\)\s+(.*?)\s+-/` regex pattern.
-- **Project ID:** `response.nodes?.[0]?.qaOperation?.project`.
-- **Attempt ID:** `response.auditedEntityContext.entityAttemptId`.
-- **Operation ID:**  `response.nodes?.[0]?.qaOperation?.stateMachine.context.operationId`.
-- **Max audit time:** `response.nodes?.[0]?.qaOperation?.maxTimeRequired`.
+- **TypeScript** - Type safety across all contexts
+- **React 19** - UI components
+- **Vite** - Build tooling with @crxjs/vite-plugin
+- **Zustand** - State management
+- **TanStack Table** - Data table functionality
+- **Tailwind CSS v4** - Styling
+- **Zod** - Runtime validation
+- **pnpm** - Package management
