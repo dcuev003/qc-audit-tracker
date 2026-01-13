@@ -9,7 +9,11 @@ import {
 	BookText,
 	Check,
 	FileQuestionMark,
+	Edit2,
+	X,
 } from "lucide-react";
+import { AddOffPlatformFormSchema } from "@/shared/validation";
+import { z } from "zod";
 
 const AddOffPlatformTime: React.FC = () => {
 	const offPlatformEntries = useStore(
@@ -28,12 +32,43 @@ const AddOffPlatformTime: React.FC = () => {
 	});
 
 	const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+	const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
+	const [editingDescription, setEditingDescription] = useState<string>("");
+	const [errors, setErrors] = useState<Record<string, string>>({});
 
 	// Ref for date input
 	const dateInputRef = useRef<HTMLInputElement>(null);
 
 	// Get recent entries from store
 	const recentEntries = offPlatformEntries.slice(-5).reverse();
+	const updateOffPlatformEntry = useStore(
+		(state: AppStore) => state.updateOffPlatformEntry
+	);
+
+	// Handle inline edit start
+	const handleStartEdit = (entry: OffPlatformTimeEntry) => {
+		setEditingEntryId(entry.id);
+		setEditingDescription(entry.description || "");
+	};
+
+	// Handle inline edit save
+	const handleSaveEdit = async (entryId: string) => {
+		try {
+			await updateOffPlatformEntry(entryId, {
+				description: editingDescription.trim(),
+			});
+			setEditingEntryId(null);
+			setEditingDescription("");
+		} catch (error) {
+			console.error("Failed to update entry:", error);
+		}
+	};
+
+	// Handle inline edit cancel
+	const handleCancelEdit = () => {
+		setEditingEntryId(null);
+		setEditingDescription("");
+	};
 
 	const activityTypes = [
 		{
@@ -97,17 +132,27 @@ const AddOffPlatformTime: React.FC = () => {
 	};
 
 	const handleSubmit = async (): Promise<void> => {
-		const entry: OffPlatformTimeEntry = {
-			id: Date.now().toString(),
-			type: formData.type,
-			hours: formData.hours,
-			minutes: formData.minutes,
-			date: formData.date,
-			description: formData.description,
-			timestamp: Date.now(),
-		};
-
+		setErrors({});
+		
 		try {
+			// Validate form data
+			AddOffPlatformFormSchema.parse({
+				date: formData.date,
+				hours: formData.hours.toString(),
+				activityType: formData.type,
+				description: formData.description || ' ' // Ensure non-empty for validation
+			});
+
+			const entry: OffPlatformTimeEntry = {
+				id: Date.now().toString(),
+				type: formData.type,
+				hours: formData.hours,
+				minutes: formData.minutes,
+				date: formData.date,
+				description: formData.description.trim(),
+				timestamp: new Date(formData.date).getTime(), // Use actual date for timestamp
+			};
+
 			// Save through Zustand store
 			await addOffPlatformEntry(entry);
 			console.log("Off-platform time entry saved:", entry);
@@ -124,19 +169,16 @@ const AddOffPlatformTime: React.FC = () => {
 				});
 			}, 2000);
 		} catch (error) {
-			console.error("Failed to save off-platform entry:", error);
-			console.log("Off-platform time entry (dev mode):", entry);
-			setIsSubmitted(true);
-			setTimeout(() => {
-				setIsSubmitted(false);
-				setFormData({
-					type: "auditing",
-					hours: 0,
-					minutes: 0,
-					date: new Date().toISOString().split("T")[0],
-					description: "",
+			if (error instanceof z.ZodError) {
+				const fieldErrors: Record<string, string> = {};
+				error.issues.forEach((issue) => {
+					const field = issue.path[0] as string;
+					fieldErrors[field] = issue.message;
 				});
-			}, 2000);
+				setErrors(fieldErrors);
+			} else {
+				console.error("Failed to save off-platform entry:", error);
+			}
 		}
 	};
 
@@ -306,10 +348,15 @@ const AddOffPlatformTime: React.FC = () => {
 									onChange={handleInputChange}
 									rows={3}
 									placeholder='Add any additional details about this activity...'
-									className='w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none'
+									className={`w-full px-4 py-3 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none ${
+										errors.description ? 'border-red-500' : 'border-gray-300'
+									}`}
 								/>
 								<FileText className='absolute right-3 top-3 w-5 h-5 text-gray-400 pointer-events-none' />
 							</div>
+							{errors.description && (
+								<p className='mt-1 text-sm text-red-600'>{errors.description}</p>
+							)}
 						</div>
 
 						{/* Action Buttons */}
@@ -369,7 +416,7 @@ const AddOffPlatformTime: React.FC = () => {
 								return (
 									<div
 										key={entry.id}
-										className='relative pl-8 pb-3 border-b border-gray-100 last:border-0'>
+										className='relative pl-8 pb-3 border-b border-gray-100 last:border-0 group'>
 										<div className='absolute left-0 top-0'>
 											<span className='text-lg text-indigo-500'>
 												{activityType?.icon}
@@ -380,14 +427,52 @@ const AddOffPlatformTime: React.FC = () => {
 												<div className='font-medium text-gray-900 text-sm'>
 													{activityType?.label}
 												</div>
-												<div className='text-sm font-medium text-gray-700'>
-													{entry.hours}h {entry.minutes}m
+												<div className='flex items-center gap-2'>
+													<div className='text-sm font-medium text-gray-700'>
+														{entry.hours}h {entry.minutes}m
+													</div>
+													{editingEntryId !== entry.id && (
+														<button
+															onClick={() => handleStartEdit(entry)}
+															className='opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-indigo-600'
+															title='Edit description'>
+															<Edit2 size={14} />
+														</button>
+													)}
 												</div>
 											</div>
-											{entry.description && (
-												<p className='text-sm text-gray-600 mb-1 line-clamp-2'>
-													{entry.description}
-												</p>
+											{editingEntryId === entry.id ? (
+												<div className='flex items-center gap-2 mt-2'>
+													<input
+														type='text'
+														value={editingDescription}
+														onChange={(e) => setEditingDescription(e.target.value)}
+														className='flex-1 px-2 py-1 text-sm border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500'
+														onKeyDown={(e) => {
+															if (e.key === 'Enter') handleSaveEdit(entry.id);
+															if (e.key === 'Escape') handleCancelEdit();
+														}}
+														autoFocus
+													/>
+													<button
+														onClick={() => handleSaveEdit(entry.id)}
+														className='text-green-600 hover:text-green-700'
+														title='Save'>
+														<Check size={14} />
+													</button>
+													<button
+														onClick={handleCancelEdit}
+														className='text-red-600 hover:text-red-700'
+														title='Cancel'>
+														<X size={14} />
+													</button>
+												</div>
+											) : (
+												entry.description && (
+													<p className='text-sm text-gray-600 mb-1 line-clamp-2'>
+														{entry.description}
+													</p>
+												)
 											)}
 											<div className='text-xs text-gray-500'>
 												{new Date(entry.date).toLocaleDateString("en-US", {

@@ -10,14 +10,15 @@ import { name, version } from "./package.json";
 export default defineConfig({
 	resolve: {
 		alias: {
-			"@": `${path.resolve(__dirname, "src")}`,
+			"@": `${path.resolve(__dirname, "./src")}`,
 		},
 	},
 	build: {
 		rollupOptions: {
 			input: {
-				popup: path.resolve(__dirname, "src/ui/popup/index.html"),
-				dashboard: path.resolve(__dirname, "src/ui/dashboard/index.html"),
+				popup: path.resolve(__dirname, "./src/ui/popup/index.html"),
+				dashboard: path.resolve(__dirname, "./src/ui/dashboard/index.html"),
+				privacy: path.resolve(__dirname, "./public/privacy.html"),
 			},
 		},
 	},
@@ -26,6 +27,7 @@ export default defineConfig({
 		react(),
 		crx({ manifest }),
 		zip({ outDir: "release", outFileName: `${name}-${version}.zip` }),
+
 		tailwindcss(),
 	],
 	server: {

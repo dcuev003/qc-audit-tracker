@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useRef } from "react";
 import {
 	useReactTable,
 	getCoreRowModel,
@@ -31,24 +31,32 @@ import {
 	Clock4,
 	ClockArrowUp,
 	Square,
+	Edit,
+	Check,
+	X,
 } from "lucide-react";
 import { DashboardEntry } from "@/types";
 import { Task } from "@/shared/types/storage";
-import InlineEdit from "./InlineEdit";
 import { useStore } from "@/ui/store";
 import {
 	getEffectiveProjectName,
 	getEffectiveMaxTime,
 	formatTimeSeconds,
-	parseTimeString,
 } from "@/projectUtils";
 import { formatActivityType } from "./dashboardUtils";
 import clsx from "clsx";
+// import { ColumnVisibilityControl } from "./ColumnVisibilityControl";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+	TooltipProvider,
+} from "@radix-ui/react-tooltip";
 
 // Column helper for type safety
 const columnHelper = createColumnHelper<DashboardEntry>();
 
-interface EnhancedDashboardTableProps {
+interface DashboardTableProps {
 	entries: DashboardEntry[];
 	onDeleteEntry?: (entry: DashboardEntry, index: number) => Promise<void>;
 	showColumnFilters: boolean;
@@ -129,7 +137,7 @@ const ColumnFilter: React.FC<{
 	);
 };
 
-export const EnhancedDashboardTable: React.FC<EnhancedDashboardTableProps> = ({
+export const DashboardTable: React.FC<DashboardTableProps> = ({
 	entries,
 	onDeleteEntry,
 	showColumnFilters,
@@ -140,6 +148,7 @@ export const EnhancedDashboardTable: React.FC<EnhancedDashboardTableProps> = ({
 }) => {
 	// Store access
 	const projectOverrides = useStore((state) => state.projectOverrides);
+	const projectNameMap = useStore((state) => state.projectNameMap);
 	const updateProjectOverride = useStore(
 		(state) => state.updateProjectOverride
 	);
@@ -158,7 +167,119 @@ export const EnhancedDashboardTable: React.FC<EnhancedDashboardTableProps> = ({
 	const [showDeleteConfirm, setShowDeleteConfirm] =
 		useState<DeleteConfirmationState | null>(null);
 	const [copyStatus, setCopyStatus] = useState<Record<string, boolean>>({});
-	const [stoppingTimer, setStoppingTimer] = useState<Record<string, boolean>>({});
+	const [stoppingTimer, setStoppingTimer] = useState<Record<string, boolean>>(
+		{}
+	);
+	const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
+	const [editingProjectName, setEditingProjectName] = useState("");
+	const [editingHours, setEditingHours] = useState("");
+	const [editingMinutes, setEditingMinutes] = useState("");
+	const [editingDescription, setEditingDescription] = useState("");
+	const minutesInputRef = useRef<HTMLInputElement>(null);
+
+	// Start editing handler
+	const handleStartEdit = useCallback(
+		(entry: DashboardEntry) => {
+			setEditingEntryId(entry.id);
+		if (entry.type === "audit") {
+			const taskLike = {
+				projectId: entry.projectId!,
+				projectName:
+					entry.projectName ||
+					(entry.projectId ? projectNameMap[entry.projectId] : undefined),
+				maxTime: entry.maxTime || 0,
+			} as Task;
+			setEditingProjectName(
+				getEffectiveProjectName(taskLike, projectOverrides)
+			);
+
+				// Parse time into hours and minutes
+				if (entry.maxTime) {
+					const hours = Math.floor(entry.maxTime / 3600);
+					const minutes = Math.floor((entry.maxTime % 3600) / 60);
+					setEditingHours(hours.toString());
+					setEditingMinutes(minutes.toString().padStart(2, "0"));
+				} else {
+					setEditingHours("0");
+					setEditingMinutes("00");
+				}
+			} else if (entry.type === "off_platform") {
+				setEditingDescription(entry.description || "");
+			}
+		},
+		[projectOverrides, projectNameMap]
+	);
+
+	// Save edit handler
+	const handleSaveEdit = useCallback(
+		async (entry: DashboardEntry) => {
+			if (entry.type === "audit" && entry.projectId) {
+				// Validate and save project name
+				if (editingProjectName.trim()) {
+					const override = projectOverrides.find(
+						(o) => o.projectId === entry.projectId
+					);
+					await updateProjectOverride({
+						projectId: entry.projectId,
+						displayName: editingProjectName.trim(),
+						originalName: override?.originalName || entry.projectName,
+						originalMaxTime: override?.originalMaxTime || entry.maxTime,
+						createdAt: override?.createdAt || Date.now(),
+						updatedAt: Date.now(),
+					});
+				}
+
+				// Validate and save max time
+				const hours = parseInt(editingHours) || 0;
+				const minutes = parseInt(editingMinutes) || 0;
+				if (hours >= 0 && hours <= 24 && minutes >= 0 && minutes < 60) {
+					const maxTimeSeconds = hours * 3600 + minutes * 60;
+					const override = projectOverrides.find(
+						(o) => o.projectId === entry.projectId
+					);
+					await updateProjectOverride({
+						projectId: entry.projectId,
+						maxTime: maxTimeSeconds,
+						displayName: override?.displayName || editingProjectName.trim(),
+						originalName: override?.originalName || entry.projectName,
+						originalMaxTime: override?.originalMaxTime || entry.maxTime,
+						createdAt: override?.createdAt || Date.now(),
+						updatedAt: Date.now(),
+					});
+				}
+			} else if (entry.type === "off_platform") {
+				// Update off-platform entry description
+				const { updateOffPlatformEntry } = useStore.getState();
+				await updateOffPlatformEntry(entry.id, {
+					description: editingDescription.trim(),
+				});
+			}
+
+			// Reset editing state
+			setEditingEntryId(null);
+			setEditingProjectName("");
+			setEditingHours("");
+			setEditingMinutes("");
+			setEditingDescription("");
+		},
+		[
+			editingProjectName,
+			editingHours,
+			editingMinutes,
+			editingDescription,
+			projectOverrides,
+			updateProjectOverride,
+		]
+	);
+
+	// Cancel edit handler
+	const handleCancelEdit = useCallback(() => {
+		setEditingEntryId(null);
+		setEditingProjectName("");
+		setEditingHours("");
+		setEditingMinutes("");
+		setEditingDescription("");
+	}, []);
 
 	// Format duration helper
 	const formatDuration = useCallback((ms: number): string => {
@@ -174,9 +295,9 @@ export const EnhancedDashboardTable: React.FC<EnhancedDashboardTableProps> = ({
 	// Stop active timer helper
 	const handleStopTimer = useCallback(async (entry: DashboardEntry) => {
 		if (entry.status !== "in-progress") return;
-		
-		setStoppingTimer(prev => ({ ...prev, [entry.id]: true }));
-		
+
+		setStoppingTimer((prev) => ({ ...prev, [entry.id]: true }));
+
 		try {
 			if (entry.type === "audit" && entry.id.startsWith("active-audit-")) {
 				// Stop audit timer
@@ -184,22 +305,25 @@ export const EnhancedDashboardTable: React.FC<EnhancedDashboardTableProps> = ({
 					type: "STOP_TRACKING",
 					payload: { reason: "manual" },
 					timestamp: Date.now(),
-					source: "dashboard"
+					source: "dashboard",
 				});
-			} else if (entry.type === "off_platform" && entry.id.startsWith("active-offplatform-")) {
+			} else if (
+				entry.type === "off_platform" &&
+				entry.id.startsWith("active-offplatform-")
+			) {
 				// Stop off-platform timer
 				const timerId = entry.id.replace("active-offplatform-", "");
 				await chrome.runtime.sendMessage({
 					type: "STOP_OFF_PLATFORM_TIMER",
 					payload: { id: timerId },
 					timestamp: Date.now(),
-					source: "dashboard"
+					source: "dashboard",
 				});
 			}
 		} catch (error) {
 			console.error("Failed to stop timer:", error);
 		} finally {
-			setStoppingTimer(prev => ({ ...prev, [entry.id]: false }));
+			setStoppingTimer((prev) => ({ ...prev, [entry.id]: false }));
 		}
 	}, []);
 
@@ -268,10 +392,15 @@ export const EnhancedDashboardTable: React.FC<EnhancedDashboardTableProps> = ({
 			columnHelper.accessor("projectName", {
 				id: "projectName",
 				header: "Project Name",
-				size: 140,
+				size: 120,
 				cell: ({ row, getValue }) => {
 					const entry = row.original;
-					const projectName = getValue() || "N/A";
+					const projectNameValue = getValue();
+					const mappedName =
+						entry.projectId && projectNameMap
+							? projectNameMap[entry.projectId]
+							: undefined;
+					const projectName = projectNameValue || mappedName || "N/A";
 
 					let effectiveProjectName = projectName;
 					let hasNameOverride = false;
@@ -279,7 +408,7 @@ export const EnhancedDashboardTable: React.FC<EnhancedDashboardTableProps> = ({
 					if (entry.type === "audit" && entry.projectId) {
 						const taskLike = {
 							projectId: entry.projectId,
-							projectName: entry.projectName,
+							projectName: entry.projectName || mappedName,
 							maxTime: entry.maxTime || 0,
 						} as Task;
 
@@ -297,34 +426,42 @@ export const EnhancedDashboardTable: React.FC<EnhancedDashboardTableProps> = ({
 						entry.projectId &&
 						entry.projectId !== "N/A"
 					) {
+						const isEditing = editingEntryId === entry.id;
+
+						if (isEditing) {
+							return (
+								<div className='flex items-center gap-2'>
+									<input
+										type='text'
+										value={editingProjectName}
+										onChange={(e) => setEditingProjectName(e.target.value)}
+										className='px-2 py-1 text-sm border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500'
+										onKeyDown={(e) => {
+											if (e.key === "Enter") handleSaveEdit(entry);
+											if (e.key === "Escape") handleCancelEdit();
+										}}
+									/>
+								</div>
+							);
+						}
+
 						return (
 							<div
 								className={`inline-flex items-center ${
 									hasNameOverride ? "text-blue-700" : ""
 								}`}>
-								<InlineEdit
-									value={
-										effectiveProjectName.length > 10
-											? effectiveProjectName.slice(0, 14) + "..."
-											: effectiveProjectName
-									}
-									onSave={async (newValue) => {
-										const override = projectOverrides.find(
-											(o) => o.projectId === entry.projectId
-										);
-										await updateProjectOverride({
-											projectId: entry.projectId!,
-											displayName: newValue,
-											originalName: override?.originalName || entry.projectName,
-											originalMaxTime:
-												override?.originalMaxTime || entry.maxTime,
-											createdAt: override?.createdAt || Date.now(),
-											updatedAt: Date.now(),
-										});
-									}}
-									placeholder='Enter project name'
-									className='text-[13px]'
-								/>
+								<TooltipProvider>
+									<Tooltip>
+										<TooltipTrigger>
+											<span className='text-sm text-gray-900'>
+												{effectiveProjectName.length > 12
+													? effectiveProjectName.slice(0, 12) + "..."
+													: effectiveProjectName}
+											</span>
+										</TooltipTrigger>
+										<TooltipContent>{effectiveProjectName}</TooltipContent>
+									</Tooltip>
+								</TooltipProvider>
 								{hasNameOverride && (
 									<span
 										className='ml-0.5 w-1.5 h-1.5 bg-blue-500 rounded-full'
@@ -418,34 +555,76 @@ export const EnhancedDashboardTable: React.FC<EnhancedDashboardTableProps> = ({
 						projectOverrides.find((o) => o.projectId === entry.projectId)
 							?.maxTime !== undefined;
 
+					const isEditing = editingEntryId === entry.id;
+
+					if (isEditing) {
+						return (
+							<div className='flex items-center gap-1'>
+								<input
+									type='number'
+									value={editingHours}
+									onChange={(e) => {
+										const val = e.target.value;
+										if (
+											val.length <= 2 &&
+											parseInt(val) >= 0 &&
+											parseInt(val) <= 24
+										) {
+											setEditingHours(val);
+											if (val.length === 1 && parseInt(val) >= 3) {
+												// Auto-focus minutes if hours is 3 or more
+												minutesInputRef.current?.focus();
+											}
+										}
+									}}
+									onKeyDown={(e) => {
+										if (e.key === "Enter") handleSaveEdit(entry);
+										if (e.key === "Escape") handleCancelEdit();
+										if (e.key === "Tab" && !e.shiftKey) {
+											e.preventDefault();
+											minutesInputRef.current?.focus();
+										}
+									}}
+									className='w-8 px-1 py-1 text-sm text-center border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500'
+									min='0'
+									max='24'
+								/>
+								<span className='text-gray-500'>h</span>
+								<input
+									ref={minutesInputRef}
+									type='number'
+									value={editingMinutes}
+									onChange={(e) => {
+										const val = e.target.value;
+										if (
+											val.length <= 2 &&
+											parseInt(val) >= 0 &&
+											parseInt(val) < 60
+										) {
+											setEditingMinutes(val.padStart(2, "0"));
+										}
+									}}
+									onKeyDown={(e) => {
+										if (e.key === "Enter") handleSaveEdit(entry);
+										if (e.key === "Escape") handleCancelEdit();
+									}}
+									className='w-10 px-1 py-1 text-sm text-center border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500'
+									min='0'
+									max='59'
+								/>
+								<span className='text-gray-500'>m</span>
+							</div>
+						);
+					}
+
 					return (
 						<div
 							className={`inline-flex items-center ${
 								hasMaxTimeOverride ? "text-blue-700" : ""
 							}`}>
-							<InlineEdit
-								value={formatTimeSeconds(effectiveMaxTime)}
-								onSave={async (newValue) => {
-									const parsedTime = parseTimeString(newValue);
-									if (parsedTime > 0) {
-										const override = projectOverrides.find(
-											(o) => o.projectId === entry.projectId
-										);
-										await updateProjectOverride({
-											projectId: entry.projectId!,
-											maxTime: parsedTime,
-											displayName: override?.displayName || entry.projectName,
-											originalName: override?.originalName || entry.projectName,
-											originalMaxTime: override?.originalMaxTime || maxTime,
-											createdAt: override?.createdAt || Date.now(),
-											updatedAt: Date.now(),
-										});
-									}
-								}}
-								placeholder='0:00:00'
-								type='time'
-								className='text-sm'
-							/>
+							<span className='font-mono text-[13px] text-gray-700'>
+								{formatTimeSeconds(effectiveMaxTime)}
+							</span>
 							{hasMaxTimeOverride && (
 								<span
 									className='ml-0.5 w-1.5 h-1.5 bg-blue-500 rounded-full'
@@ -459,30 +638,36 @@ export const EnhancedDashboardTable: React.FC<EnhancedDashboardTableProps> = ({
 			}),
 
 			// Completion Time column
-			columnHelper.display({
-				id: "completionTime",
-				header: "Completion Time",
-				size: 100,
-				cell: ({ row }) => {
-					const entry = row.original;
+			columnHelper.accessor(
+				(row) => {
 					// Use endTime, completionTime, transitionTime, or fallback to startTime
-					const timestamp =
-						entry.endTime ||
-						entry.completionTime ||
-						entry.transitionTime ||
-						entry.startTime;
-					const date = new Date(timestamp);
 					return (
-						<div className='text-sm'>
-							<div className='text-gray-900'>{date.toLocaleDateString()}</div>
-							<div className='text-gray-500 text-xs'>
-								{date.toLocaleTimeString()}
-							</div>
-						</div>
+						row.endTime ||
+						row.completionTime ||
+						row.transitionTime ||
+						row.startTime
 					);
 				},
-				sortUndefined: "last",
-			}),
+				{
+					id: "completionTime",
+					header: "Completion Time",
+					size: 100,
+					cell: ({ getValue }) => {
+						const timestamp = getValue();
+						const date = new Date(timestamp);
+						return (
+							<div className='text-sm'>
+								<div className='text-gray-900'>{date.toLocaleDateString()}</div>
+								<div className='text-gray-500 text-xs'>
+									{date.toLocaleTimeString()}
+								</div>
+							</div>
+						);
+					},
+					sortingFn: "datetime",
+					sortUndefined: "last",
+				}
+			),
 
 			// Timer Status column
 			columnHelper.display({
@@ -522,6 +707,49 @@ export const EnhancedDashboardTable: React.FC<EnhancedDashboardTableProps> = ({
 					);
 				},
 			}),
+
+			// Description column (for off-platform entries)
+			// columnHelper.accessor("description", {
+			// 	id: "description",
+			// 	header: "Description",
+			// 	size: 200,
+			// 	cell: ({ row, getValue }) => {
+			// 		const entry = row.original;
+			// 		const description = getValue() || "";
+
+			// 		if (entry.type !== "off_platform") {
+			// 			return <span className='text-gray-400 text-sm'>-</span>;
+			// 		}
+
+			// 		const isEditing = editingEntryId === entry.id;
+
+			// 		if (isEditing) {
+			// 			return (
+			// 				<div className='flex items-center gap-2'>
+			// 					<input
+			// 						type='text'
+			// 						value={editingDescription}
+			// 						onChange={(e) => setEditingDescription(e.target.value)}
+			// 						className='flex-1 px-2 py-1 text-sm border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500'
+			// 						onKeyDown={(e) => {
+			// 							if (e.key === "Enter") handleSaveEdit(entry);
+			// 							if (e.key === "Escape") handleCancelEdit();
+			// 						}}
+			// 					/>
+			// 				</div>
+			// 			);
+			// 		}
+
+			// 		return (
+			// 			<span className='text-sm text-gray-900' title={description}>
+			// 				{description.length > 30
+			// 					? description.slice(0, 30) + "..."
+			// 					: description}
+			// 			</span>
+			// 		);
+			// 	},
+			// 	filterFn: "includesString",
+			// }),
 
 			// Status column
 			columnHelper.accessor("status", {
@@ -588,7 +816,41 @@ export const EnhancedDashboardTable: React.FC<EnhancedDashboardTableProps> = ({
 									)}
 								</button>
 							)}
-							
+
+							{/* Edit Button */}
+							{(entry.type === "audit" || entry.type === "off_platform") && (
+								<>
+									<button
+										onClick={() => {
+											if (editingEntryId === entry.id) {
+												handleSaveEdit(entry);
+											} else {
+												handleStartEdit(entry);
+											}
+										}}
+										className='mr-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors'
+										title={
+											editingEntryId === entry.id
+												? "Save changes"
+												: "Edit entry"
+										}>
+										{editingEntryId === entry.id ? (
+											<Check size={18} />
+										) : (
+											<Edit size={18} />
+										)}
+									</button>
+									{editingEntryId === entry.id && (
+										<button
+											onClick={handleCancelEdit}
+											className='mr-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors'
+											title='Cancel editing'>
+											<X size={18} />
+										</button>
+									)}
+								</>
+							)}
+
 							<button
 								onClick={() => handleCopyRow(entry)}
 								className='mr-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors'
@@ -621,6 +883,15 @@ export const EnhancedDashboardTable: React.FC<EnhancedDashboardTableProps> = ({
 			onDeleteEntry,
 			handleStopTimer,
 			stoppingTimer,
+			editingEntryId,
+			editingProjectName,
+			editingHours,
+			editingMinutes,
+			editingDescription,
+			handleStartEdit,
+			handleSaveEdit,
+			handleCancelEdit,
+			minutesInputRef,
 		]
 	);
 
@@ -791,27 +1062,29 @@ export const EnhancedDashboardTable: React.FC<EnhancedDashboardTableProps> = ({
 				{/* Pagination */}
 				<div className='px-6 py-4 border-t border-gray-200'>
 					<div className='flex items-center justify-between'>
-						{/* Page info */}
-						<div className='text-sm text-gray-700'>
-							Showing{" "}
-							<span className='font-medium'>
-								{table.getState().pagination.pageIndex *
-									table.getState().pagination.pageSize +
-									1}
-							</span>{" "}
-							to{" "}
-							<span className='font-medium'>
-								{Math.min(
-									(table.getState().pagination.pageIndex + 1) *
-										table.getState().pagination.pageSize,
-									table.getFilteredRowModel().rows.length
-								)}
-							</span>{" "}
-							of{" "}
-							<span className='font-medium'>
-								{table.getFilteredRowModel().rows.length}
-							</span>{" "}
-							results
+						{/* Left side - Page info and Column Visibility */}
+						<div className='flex items-center gap-4'>
+							<div className='text-sm text-gray-700'>
+								Showing{" "}
+								<span className='font-medium'>
+									{table.getState().pagination.pageIndex *
+										table.getState().pagination.pageSize +
+										1}
+								</span>{" "}
+								to{" "}
+								<span className='font-medium'>
+									{Math.min(
+										(table.getState().pagination.pageIndex + 1) *
+											table.getState().pagination.pageSize,
+										table.getFilteredRowModel().rows.length
+									)}
+								</span>{" "}
+								of{" "}
+								<span className='font-medium'>
+									{table.getFilteredRowModel().rows.length}
+								</span>{" "}
+								results
+							</div>
 						</div>
 
 						{/* Pagination controls */}
@@ -886,4 +1159,4 @@ export const EnhancedDashboardTable: React.FC<EnhancedDashboardTableProps> = ({
 	);
 };
 
-export default EnhancedDashboardTable;
+export default DashboardTable;

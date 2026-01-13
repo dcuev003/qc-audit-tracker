@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QC Audit Tracker – Privacy Policy</title>
+    <meta name="color-scheme" content="light dark">
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0; color: #111827; background: #ffffff; }
+      .container { max-width: 860px; margin: 0 auto; padding: 32px 20px 60px; }
+      h1 { font-size: 28px; margin: 0 0 8px; }
+      h2 { font-size: 20px; margin: 28px 0 8px; }
+      p { margin: 10px 0; }
+      ul { margin: 10px 0 10px 22px; }
+      .meta { color: #6B7280; font-size: 14px; margin-bottom: 20px; }
+      .section { border-top: 1px solid #E5E7EB; margin-top: 22px; padding-top: 18px; }
+      @media (prefers-color-scheme: dark) {
+        body { color: #E5E7EB; background: #0B0F19; }
+        .meta { color: #9CA3AF; }
+        .section { border-color: #1F2937; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <h1>QC Audit Tracker – Privacy Policy</h1>
+      <div class="meta">Last Updated: <span id="last-updated">[replace with date]</span></div>
+
+      <p>
+        QC Audit Tracker is a Chrome extension that helps Outlier AI auditors track time spent on audits and view analytics and exports.
+        The extension operates only on <code>https://app.outlier.ai/*</code>. All audit data stays on your device unless you explicitly export it.
+      </p>
+
+      <div class="section">
+        <h2>Data We Collect</h2>
+        <ul>
+          <li><strong>Audit metadata (from Outlier pages you visit)</strong>: Project ID and project name, QA operation ID, attempt ID, review level; audit timing (start/end, completion/transition timestamps, durations); per‑project max time (derived from page APIs or a remote configuration map).</li>
+          <li><strong>Off‑platform time entries (user‑provided)</strong>: Activity type, description, date, and duration entered by you.</li>
+          <li><strong>Settings and overrides (user‑provided)</strong>: Project name overrides and max time overrides; optional email for timesheet export; preference toggles (e.g., developer logging).</li>
+          <li><strong>Configuration fetched remotely</strong>: A small read‑only JSON map of <em>projectId → maxTime (minutes)</em> from a Google Apps Script URL. This is configuration data only; it contains no personal data or executable code.</li>
+          <li><strong>Diagnostics</strong>: Optional in‑extension logs for troubleshooting. These appear in your browser console only and are not transmitted.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>How We Collect Data</h2>
+        <p>Content and page scripts read relevant audit data from specific Outlier API responses and the page UI while you are on <code>app.outlier.ai</code>. The extension fetches the project max‑time map once per day (or on startup) from the configured URL. You may enter off‑platform entries and overrides via the extension UI.</p>
+      </div>
+
+      <div class="section">
+        <h2>How We Use Data</h2>
+        <ul>
+          <li>Provide accurate time tracking, analytics, and exports (e.g., timesheets).</li>
+          <li>Apply correct per‑project max time to timers and analytics.</li>
+          <li>Maintain your settings and overrides across sessions.</li>
+          <li>Perform background health checks and daily refresh of the max‑time map.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>Data Sharing</h2>
+        <ul>
+          <li>We do not sell or share your data with third parties.</li>
+          <li>No analytics, ad networks, or tracking services are used.</li>
+          <li>The only network request is to fetch the configuration JSON (project max times). No user data is sent in this request.</li>
+          <li>Exports (e.g., CSV/TSV) are initiated by you. If you share exported files, that sharing is under your control.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>Data Storage &amp; Retention</h2>
+        <p>Data is stored locally using Chrome’s <code>storage.local</code> on your device (tasks, timers, off‑platform entries, overrides, settings). Data persists until you delete it from the extension, clear your browser data, or uninstall the extension.</p>
+      </div>
+
+      <div class="section">
+        <h2>Security</h2>
+        <ul>
+          <li>Data remains on your device by default and is not transmitted to our servers.</li>
+          <li>Host permissions and code are limited to Outlier pages to minimize access surface.</li>
+          <li>The remote configuration fetch is read‑only JSON, parsed as data (no remote code is executed).</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>Your Choices &amp; Controls</h2>
+        <ul>
+          <li>Enable/disable tracking from the extension settings.</li>
+          <li>Edit or delete off‑platform entries and project overrides.</li>
+          <li>Clear stored data by removing entries or by clearing site data for the extension in Chrome.</li>
+          <li>Uninstalling the extension removes all stored data from your device.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>Children’s Privacy</h2>
+        <p>This extension is intended for adult professional users. It is not directed to children under 13.</p>
+      </div>
+
+      <div class="section">
+        <h2>Regional Rights (GDPR/CCPA)</h2>
+        <p>We do not run servers or store personal data outside your device. If you have questions about local data stored by the extension or wish to exercise data rights, you can remove or modify the data directly in the UI or uninstall the extension. For additional requests, contact the developer at: <strong>[replace with contact email]</strong>.</p>
+      </div>
+
+      <div class="section">
+        <h2>Changes to This Policy</h2>
+        <p>We may update this policy as the extension evolves. Material changes will be reflected by updating the “Last Updated” date above.</p>
+      </div>
+
+      <div class="section">
+        <h2>Contact</h2>
+        <ul>
+          <li>Email: <strong>[replace with contact email]</strong></li>
+          <li>Repository/Issues: <strong>[optional: link to GitHub repo/issues]</strong></li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>Permissions Disclosure</h2>
+        <ul>
+          <li><strong>storage</strong>: store timers, audit history, settings, overrides, and the project max‑time map locally.</li>
+          <li><strong>alarms</strong>: keep timers accurate, perform hourly health checks, and refresh the max‑time map daily.</li>
+          <li><strong>tabs</strong>: send timer updates to Outlier tabs (no browsing history collection).</li>
+          <li><strong>Host permissions</strong>:
+            <ul>
+              <li><code>https://app.outlier.ai/*</code> to operate only on Outlier pages.</li>
+              <li><code>https://script.google.com/*</code> and <code>https://script.googleusercontent.com/*</code> to fetch the project max‑time configuration JSON.</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>Remote Code</h2>
+        <p>No. The extension does not execute remote code. The only remote call fetches a static JSON configuration, which is parsed as data.</p>
+      </div>
+    </main>
+    <script>
+      // Optional: auto-fill today date if placeholder is present
+      (function(){
+        var el = document.getElementById('last-updated');
+        if (el && /\[replace/.test(el.textContent || '')) {
+          var d = new Date();
+          el.textContent = d.toISOString().slice(0,10);
+        }
+      })();
+    </script>
+  </body>
+  </html>
+

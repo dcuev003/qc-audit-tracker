@@ -2,6 +2,7 @@ import type { Task, OffPlatformTimeEntry, ProjectOverride } from '@/shared/types
 import type { UserSettings } from './types';
 import type { ActiveTimerState } from '@/shared/types/activeTimers';
 import { ACTIVE_TIMERS_STORAGE_KEY } from '@/shared/types/activeTimers';
+import { STORAGE_KEYS } from '@/shared/constants';
 
 export class ChromeStorageSync {
   private listeners: Map<string, Set<(data: any) => void>> = new Map();
@@ -85,6 +86,15 @@ export class ChromeStorageSync {
 
   async setProjectOverrides(overrides: ProjectOverride[]): Promise<void> {
     await chrome.storage.local.set({ projectOverrides: overrides });
+  }
+
+  async getProjectNameMap(): Promise<Record<string, string>> {
+    const result = await chrome.storage.local.get(STORAGE_KEYS.PROJECT_NAME_MAP);
+    return result[STORAGE_KEYS.PROJECT_NAME_MAP] || {};
+  }
+
+  async setProjectNameMap(map: Record<string, string>): Promise<void> {
+    await chrome.storage.local.set({ [STORAGE_KEYS.PROJECT_NAME_MAP]: map });
   }
 
   async getSettings(): Promise<UserSettings> {

@@ -8,7 +8,6 @@ import {
 	FileText,
 	FileSpreadsheet,
 	Search,
-	Settings2,
 } from "lucide-react";
 import { DashboardEntry, Filters } from "@/types";
 import { ColumnFiltersState } from "@tanstack/react-table";
@@ -19,6 +18,8 @@ import {
 } from "./dashboardUtils";
 import { copyTimesheetToClipboard } from "@/projectUtils";
 import { useStore } from "@/ui/store";
+import { getDatePresetRange } from "@/shared/timeUtils";
+import { DatePreset } from "@/shared/types";
 
 interface FilterBarProps {
 	filters: Filters;
@@ -43,8 +44,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
 	filteredEntries,
 	globalFilter,
 	setGlobalFilter,
-	showColumnFilters,
-	setShowColumnFilters,
+	// showColumnFilters,
+	// setShowColumnFilters,
 	columnFilters,
 	setColumnFilters,
 	totalEntries,
@@ -85,43 +86,15 @@ const FilterBar: React.FC<FilterBarProps> = ({
 	};
 
 	const handleDatePreset = (preset: string) => {
-		const today = new Date();
-		let startDate: Date, endDate: Date;
-
-		switch (preset) {
-			case "today":
-				startDate = endDate = today;
-				break;
-			case "yesterday":
-				const yesterday = new Date(today);
-				yesterday.setDate(yesterday.getDate() - 1);
-				startDate = endDate = yesterday;
-				break;
-			case "week":
-				const weekStart = new Date(today);
-				weekStart.setDate(today.getDate() - today.getDay());
-				const weekEnd = new Date(weekStart);
-				weekEnd.setDate(weekStart.getDate() + 6);
-				startDate = weekStart;
-				endDate = weekEnd;
-				break;
-			case "month":
-				startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-				endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-				break;
-			case "last-month":
-				startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-				endDate = new Date(today.getFullYear(), today.getMonth(), 0);
-				break;
-			default:
-				return;
+		const range = getDatePresetRange(preset as DatePreset);
+		if (range) {
+			const toLocalYMD = (d: Date) => d.toLocaleDateString("en-CA"); // YYYY-MM-DD in local tz
+			setFilters((prev) => ({
+				...prev,
+				startDate: toLocalYMD(range.startDate),
+				endDate: toLocalYMD(range.endDate),
+			}));
 		}
-
-		setFilters((prev) => ({
-			...prev,
-			startDate: startDate.toISOString().split("T")[0],
-			endDate: endDate.toISOString().split("T")[0],
-		}));
 		setShowDatePicker(false);
 	};
 
@@ -147,8 +120,9 @@ const FilterBar: React.FC<FilterBarProps> = ({
 		if (!filters.startDate && !filters.endDate) return "All time";
 		if (!filters.startDate || !filters.endDate) return "Select dates";
 
-		const start = new Date(filters.startDate);
-		const end = new Date(filters.endDate);
+		// Parse as local dates by appending time portion to avoid UTC offset shift
+		const start = new Date(`${filters.startDate}T00:00:00`);
+		const end = new Date(`${filters.endDate}T00:00:00`);
 
 		if (filters.startDate === filters.endDate) {
 			return start.toLocaleDateString("en-US", {
@@ -242,6 +216,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
 											{ label: "Today", value: "today" },
 											{ label: "Yesterday", value: "yesterday" },
 											{ label: "This Week", value: "week" },
+											{ label: "Last Week", value: "last-week" },
 											{ label: "This Month", value: "month" },
 											{ label: "Last Month", value: "last-month" },
 										].map((preset) => (
@@ -327,18 +302,24 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
 					{/* Right side - Actions */}
 					<div className='flex items-center gap-2'>
-						{/* Column Filters Toggle */}
+						{/* TODO: Column Filters Toggle - Merge with Filters */}
+						{/*
 						<button
 							onClick={() => setShowColumnFilters(!showColumnFilters)}
 							className={`inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
 								showColumnFilters
-									? "bg-gray-100 text-gray-900 border-gray-300"
+									? "bg-blue-50 text-blue-700 border-blue-200"
 									: "text-gray-700 border-gray-300 hover:bg-gray-50"
 							}`}
 							title='Toggle column filters'>
 							<Settings2 className='h-4 w-4' />
 							<span className='hidden sm:inline'>Column Filters</span>
-						</button>
+							{columnFilters.length > 0 && (
+								<span className='ml-1 px-1.5 py-0.5 text-xs bg-blue-600 text-white rounded-full'>
+									{columnFilters.length}
+								</span>
+							)}
+						</button> */}
 
 						{/* Export Menu */}
 						<div ref={exportMenuRef} className='relative'>

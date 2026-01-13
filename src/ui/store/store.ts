@@ -9,6 +9,7 @@ import { createLogger } from '@/shared/logger';
 import type { Task, OffPlatformTimeEntry, ProjectOverride } from '@/shared/types/storage';
 import type { ActiveTimerState } from '@/shared/types/activeTimers';
 import { ACTIVE_TIMERS_STORAGE_KEY } from '@/shared/types/activeTimers';
+import { STORAGE_KEYS } from '@/shared/constants';
 
 const logger = createLogger('Store');
 
@@ -51,7 +52,7 @@ export const useStore = create<AppStore>()(
           }
         }, 1000);
         
-        set({ _realtimeUpdateInterval: interval });
+        set({ _realtimeUpdateInterval: interval as unknown as number });
         logger.info('Started real-time computed value updates');
       },
       
@@ -92,7 +93,7 @@ export const useStore = create<AppStore>()(
           }
         }, 30000); // 30 seconds
         
-        set({ _analyticsUpdateInterval: interval });
+        set({ _analyticsUpdateInterval: interval as unknown as number });
         logger.info('Started analytics updates (every 30 seconds)');
       },
 
@@ -174,8 +175,12 @@ export const useStore = create<AppStore>()(
         const todayEntries = [
           ...state.tasks.filter(task => task.startTime >= startOfToday.getTime() && task.status === 'completed'),
           ...state.offPlatformEntries.filter(entry => {
-            const entryDate = new Date(entry.date);
-            return entryDate >= startOfToday;
+            if (!entry.date) return false;
+            // Parse the date string properly for local timezone comparison
+            const [year, month, day] = entry.date.split('-').map(Number);
+            const entryDate = new Date(year, month - 1, day); // month is 0-indexed
+            entryDate.setHours(0, 0, 0, 0);
+            return entryDate.getTime() === startOfToday.getTime();
           })
         ];
         
@@ -210,7 +215,11 @@ export const useStore = create<AppStore>()(
         const weeklyEntries = [
           ...state.tasks.filter(task => task.startTime >= startOfWeek.getTime() && task.status === 'completed'),
           ...state.offPlatformEntries.filter(entry => {
-            const entryDate = new Date(entry.date);
+            if (!entry.date) return false;
+            // Parse the date string properly for local timezone comparison
+            const [year, month, day] = entry.date.split('-').map(Number);
+            const entryDate = new Date(year, month - 1, day); // month is 0-indexed
+            entryDate.setHours(0, 0, 0, 0);
             return entryDate >= startOfWeek;
           })
         ];
@@ -239,6 +248,8 @@ export const useStore = create<AppStore>()(
         set({ dailyHours, weeklyHours });
       },
       
+      projectNameMap: {},
+
       // Computed values
       dailyHours: 0,
       weeklyHours: 0,
@@ -257,36 +268,81 @@ export const useStore = create<AppStore>()(
           set({ isLoading: true });
           
           // Load all data from Chrome storage including active timers
-          const [tasks, offPlatformEntries, projectOverrides, settings, activeTimers] = await Promise.all([
+          const [tasks, offPlatformEntries, projectOverrides, settings, activeTimers, projectNameMap] = await Promise.all([
             chromeSync.getTasks(),
             chromeSync.getOffPlatformEntries(),
             chromeSync.getProjectOverrides(),
             chromeSync.getSettings(),
             chromeSync.getActiveTimers(),
+            chromeSync.getProjectNameMap(),
           ]);
           
           // Filter tasks to last month
           const oneMonthAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
           const filteredTasks = tasks.filter(task => task.startTime >= oneMonthAgo);
-          
+
+          let derivedNameMap = { ...projectNameMap };
+          let nameMapChanged = false;
+
+          filteredTasks.forEach(task => {
+            if (task.projectId && task.projectName && !derivedNameMap[task.projectId]) {
+              derivedNameMap[task.projectId] = task.projectName;
+              nameMapChanged = true;
+            }
+          });
+
+          let shouldPersistTasks = false;
+          const enrichedTasks = filteredTasks.map(task => {
+            if (task.projectId && !task.projectName) {
+              const mapped = derivedNameMap[task.projectId];
+              if (mapped) {
+                shouldPersistTasks = true;
+                return { ...task, projectName: mapped };
+              }
+            }
+            return task;
+          });
+
+          if (nameMapChanged) {
+            await chromeSync.setProjectNameMap(derivedNameMap);
+          }
+
+          if (shouldPersistTasks) {
+            const existingTasks = [...tasks];
+            const updatedTasks = existingTasks.map(task => {
+              if (task.projectId && !task.projectName) {
+                const mapped = derivedNameMap[task.projectId];
+                if (mapped) {
+                  return { ...task, projectName: mapped };
+                }
+              }
+              return task;
+            });
+            await chromeSync.setTasks(updatedTasks);
+          }
+
+          const finalNameMap = nameMapChanged ? derivedNameMap : projectNameMap;
+
           set({
-            tasks: filteredTasks,
+            tasks: enrichedTasks,
             offPlatformEntries,
             projectOverrides,
+            projectNameMap: finalNameMap,
             settings,
             activeTimers,
             lastSync: Date.now(),
             isLoading: false,
           });
-          
+
           // Update computed values after syncing
           const state = get();
           state.updateComputedValues();
-          
+
           logger.info('Synced with Chrome storage', {
-            tasksCount: filteredTasks.length,
+            tasksCount: enrichedTasks.length,
             offPlatformCount: offPlatformEntries.length,
             overridesCount: projectOverrides.length,
+            projectNameCount: Object.keys(finalNameMap).length,
           });
         } catch (error) {
           set({ isLoading: false });
@@ -302,10 +358,20 @@ export const useStore = create<AppStore>()(
         const unsubscribeTasks = chromeSync.subscribe('completedTasks', (tasks: Task[]) => {
           const oneMonthAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
           const filteredTasks = tasks.filter(task => task.startTime >= oneMonthAgo);
-          set({ tasks: filteredTasks });
+          const projectNameMap = get().projectNameMap || {};
+          const enriched = filteredTasks.map(task => {
+            if (task.projectId && !task.projectName) {
+              const mapped = projectNameMap[task.projectId];
+              if (mapped) {
+                return { ...task, projectName: mapped };
+              }
+            }
+            return task;
+          });
+          set({ tasks: enriched });
           const state = get();
           state.updateComputedValues();
-          logger.info('Tasks updated from storage change', filteredTasks.length);
+          logger.info('Tasks updated from storage change', enriched.length);
         });
         
         const unsubscribeOffPlatform = chromeSync.subscribe('offPlatformTime', (entries: OffPlatformTimeEntry[]) => {
@@ -340,7 +406,24 @@ export const useStore = create<AppStore>()(
             hasActiveOffPlatform: !!activeTimers.activeOffPlatform
           });
         });
-        
+
+        const unsubscribeProjectNames = chromeSync.subscribe(STORAGE_KEYS.PROJECT_NAME_MAP, (map: Record<string, string>) => {
+          const currentMap = map || {};
+          const state = get();
+          const tasksWithNames = state.tasks.map(task => {
+            if (task.projectId && !task.projectName) {
+              const mapped = currentMap[task.projectId];
+              if (mapped) {
+                return { ...task, projectName: mapped };
+              }
+            }
+            return task;
+          });
+
+          set({ projectNameMap: currentMap, tasks: tasksWithNames });
+          logger.info('Project name map updated from storage change', Object.keys(currentMap).length);
+        });
+
         // Store unsubscribe functions for cleanup
         (window as any).__zustandUnsubscribers = [
           unsubscribeTasks,
@@ -349,7 +432,38 @@ export const useStore = create<AppStore>()(
           unsubscribeSettings,
           unsubscribeTracking,
           unsubscribeActiveTimers,
+          unsubscribeProjectNames,
         ];
+      },
+
+      setProjectNameMapping: async (projectId: string, projectName: string) => {
+        if (!projectId || !projectName) {
+          return;
+        }
+
+        const [set, get] = args;
+        const currentMap = { ...(get().projectNameMap || {}) };
+        if (currentMap[projectId] === projectName) {
+          return;
+        }
+
+        currentMap[projectId] = projectName;
+        await chromeSync.setProjectNameMap(currentMap);
+
+        const tasksWithNames = get().tasks.map(task => {
+          if (task.projectId === projectId) {
+            return { ...task, projectName };
+          }
+          if (task.projectId && !task.projectName) {
+            const mapped = currentMap[task.projectId];
+            if (mapped) {
+              return { ...task, projectName: mapped };
+            }
+          }
+          return task;
+        });
+
+        set({ projectNameMap: currentMap, tasks: tasksWithNames });
       },
       
       unsubscribeFromStorageChanges: () => {

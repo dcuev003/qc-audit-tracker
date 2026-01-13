@@ -24,6 +24,7 @@ const AppContent: React.FC = () => {
 	const offPlatformEntries = useStore((state) => state.offPlatformEntries);
 	const projectOverrides = useStore((state) => state.projectOverrides);
 	const activeTimers = useStore((state) => state.activeTimers);
+	const projectNameMap = useStore((state) => state.projectNameMap);
 	const deleteTask = useStore((state) => state.deleteTask);
 	const deleteOffPlatformEntry = useStore(
 		(state) => state.deleteOffPlatformEntry
@@ -87,8 +88,8 @@ const AppContent: React.FC = () => {
 		}
 		
 		// Sort entries with active ones first, then by start time (newest first)
-		const allEntries = [...activeEntries, ...taskEntries, ...offPlatformDashboardEntries];
-		const sortedEntries = allEntries.sort((a, b) => {
+		const allEntriesCombined = [...activeEntries, ...taskEntries, ...offPlatformDashboardEntries];
+		const sortedEntries = allEntriesCombined.sort((a, b) => {
 			// Active entries first
 			if (a.status === 'in-progress' && b.status !== 'in-progress') return -1;
 			if (a.status !== 'in-progress' && b.status === 'in-progress') return 1;
@@ -96,16 +97,26 @@ const AppContent: React.FC = () => {
 			// Then by start time (newest first)
 			return b.startTime - a.startTime;
 		});
+
+		const enrichedEntries = sortedEntries.map((entry) => {
+			if (entry.projectId && !entry.projectName) {
+				const mappedName = projectNameMap[entry.projectId];
+				if (mappedName) {
+					return { ...entry, projectName: mappedName };
+				}
+			}
+			return entry;
+		});
 		
 		console.log('[Dashboard] Final entries count:', {
-			total: sortedEntries.length,
+			total: enrichedEntries.length,
 			active: activeEntries.length,
 			tasks: taskEntries.length,
 			offPlatform: offPlatformDashboardEntries.length
 		});
 		
-		return sortedEntries;
-	}, [tasks, offPlatformEntries, activeTimers, currentTime]);
+		return enrichedEntries;
+	}, [tasks, offPlatformEntries, activeTimers, currentTime, projectNameMap]);
 
 	const projectIds = useMemo(
 		() => [

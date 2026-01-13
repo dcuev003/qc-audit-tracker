@@ -2,6 +2,7 @@ import { StateCreator } from 'zustand';
 import { AppStore } from '../types';
 import { Task, OffPlatformTimeEntry, ProjectOverride } from '@/shared/types/storage';
 import { createLogger } from '@/shared/logger';
+import { STORAGE_KEYS } from '@/shared/constants';
 
 const logger = createLogger('TasksSlice');
 
@@ -35,27 +36,50 @@ export const createTasksSlice: StateCreator<
 
   loadTasks: async () => {
     try {
-      const result = await chrome.storage.local.get(['completedTasks', 'offPlatformTime', 'projectOverrides']);
+      const result = await chrome.storage.local.get([
+        STORAGE_KEYS.COMPLETED_TASKS,
+        STORAGE_KEYS.OFF_PLATFORM_TIME,
+        STORAGE_KEYS.PROJECT_OVERRIDES,
+        STORAGE_KEYS.PROJECT_NAME_MAP,
+      ]);
       
       // Filter tasks to get only last month's data
       const oneMonthAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
-      const tasks = (result.completedTasks || []).filter((task: Task) => 
+      const projectNameMap: Record<string, string> = result[STORAGE_KEYS.PROJECT_NAME_MAP] || {};
+      const rawTasks: Task[] = result[STORAGE_KEYS.COMPLETED_TASKS] || [];
+      const rawOffPlatform: OffPlatformTimeEntry[] = result[STORAGE_KEYS.OFF_PLATFORM_TIME] || [];
+      const overridesSource = result[STORAGE_KEYS.PROJECT_OVERRIDES] || [];
+      const overridesArray: ProjectOverride[] = Array.isArray(overridesSource)
+        ? overridesSource
+        : Object.values(overridesSource);
+
+      const tasks = rawTasks.filter((task: Task) => 
         task.startTime >= oneMonthAgo
       );
+
+      const enrichedTasks = tasks.map((task: Task) => {
+        if (task.projectId && !task.projectName) {
+          const mapped = projectNameMap[task.projectId];
+          if (mapped) {
+            return { ...task, projectName: mapped };
+          }
+        }
+        return task;
+      });
       
       set({
-        tasks,
-        offPlatformEntries: result.offPlatformTime || [],
-        projectOverrides: result.projectOverrides || [],
+        tasks: enrichedTasks,
+        offPlatformEntries: rawOffPlatform,
+        projectOverrides: overridesArray,
       });
       
       // Update computed values after loading data
       get().updateComputedValues();
       
       logger.info('Tasks loaded', { 
-        tasksCount: tasks.length,
-        offPlatformCount: result.offPlatformTime?.length || 0,
-        overridesCount: result.projectOverrides?.length || 0,
+        tasksCount: enrichedTasks.length,
+        offPlatformCount: rawOffPlatform.length,
+        overridesCount: overridesArray.length,
       });
     } catch (error) {
       logger.error('Failed to load tasks', error);

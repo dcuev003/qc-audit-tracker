@@ -1,12 +1,12 @@
-import { 
-  Task, 
-  OffPlatformTimeEntry, 
-  ProjectOverride, 
-  TimerState, 
-  ExtensionSettings
-} from '../shared/types/storage';
-import { STORAGE_KEYS } from '../shared/constants';
-import { createLogger } from '../shared/logger';
+import {
+  Task,
+  OffPlatformTimeEntry,
+  ProjectOverride,
+  TimerState,
+  ExtensionSettings,
+} from "../shared/types/storage";
+import { STORAGE_KEYS } from "../shared/constants";
+import { createLogger } from '@/shared/logger';
 
 const logger = createLogger('Storage');
 
@@ -87,11 +87,24 @@ export class StorageManager {
 
   async saveCompletedTask(task: Task): Promise<void> {
     try {
+      const taskToSave = { ...task };
+
+      if (taskToSave.projectId && !taskToSave.projectName) {
+        const storedName = await this.getProjectName(taskToSave.projectId);
+        if (storedName) {
+          taskToSave.projectName = storedName;
+        }
+      }
+
+      if (taskToSave.projectId && taskToSave.projectName) {
+        await this.setProjectName(taskToSave.projectId, taskToSave.projectName);
+      }
+
       const result = await chrome.storage.local.get([STORAGE_KEYS.COMPLETED_TASKS]);
       const tasks = result[STORAGE_KEYS.COMPLETED_TASKS] || [];
-      
+
       // Add new task
-      tasks.push(task);
+      tasks.push(taskToSave);
       
       // Keep only last 1000 tasks to prevent storage overflow
       if (tasks.length > 1000) {
@@ -169,6 +182,12 @@ export class StorageManager {
       await chrome.storage.local.set({
         [STORAGE_KEYS.PROJECT_OVERRIDES]: overrides
       });
+
+      if (override.displayName) {
+        await this.setProjectName(override.projectId, override.displayName);
+      } else if (override.originalName) {
+        await this.setProjectName(override.projectId, override.originalName);
+      }
       
       logger.storage('Project override saved', { projectId: override.projectId });
     } catch (error) {
@@ -215,6 +234,106 @@ export class StorageManager {
       });
     } catch (error) {
       logger.error('Failed to update timer state', error);
+    }
+  }
+
+  // ----- Project Max Times Mapping -----
+  async getProjectMaxTimes(): Promise<Record<string, number>> {
+    try {
+      const result = await chrome.storage.local.get([
+        STORAGE_KEYS.PROJECT_MAX_TIMES,
+      ]);
+      return result[STORAGE_KEYS.PROJECT_MAX_TIMES] || {};
+    } catch (error) {
+      logger.error("Failed to get project max times", error);
+      return {};
+    }
+  }
+
+  async getProjectMaxTime(projectId: string): Promise<number | null> {
+    try {
+      const map = await this.getProjectMaxTimes();
+      const value = map[projectId];
+      return typeof value === "number" ? value : null;
+    } catch (error) {
+      logger.error("Failed to get project max time", error);
+      return null;
+    }
+  }
+
+  async setProjectMaxTimes(
+    map: Record<string, number>,
+    fetchedAt: number
+  ): Promise<void> {
+    try {
+      await chrome.storage.local.set({
+        [STORAGE_KEYS.PROJECT_MAX_TIMES]: map,
+        [STORAGE_KEYS.PROJECT_MAX_TIMES_LAST_FETCH]: fetchedAt,
+      });
+      logger.storage("Project max times updated", {
+        count: Object.keys(map || {}).length,
+        fetchedAt,
+      });
+    } catch (error) {
+      logger.error("Failed to set project max times", error);
+    }
+  }
+
+  async getProjectMaxTimesLastFetch(): Promise<number | null> {
+    try {
+      const result = await chrome.storage.local.get([
+        STORAGE_KEYS.PROJECT_MAX_TIMES_LAST_FETCH,
+      ]);
+      return result[STORAGE_KEYS.PROJECT_MAX_TIMES_LAST_FETCH] || null;
+    } catch (error) {
+      logger.error("Failed to get project max times last fetch timestamp", error);
+      return null;
+    }
+  }
+
+  async getProjectNameMap(): Promise<Record<string, string>> {
+    try {
+      const result = await chrome.storage.local.get([
+        STORAGE_KEYS.PROJECT_NAME_MAP,
+      ]);
+      return result[STORAGE_KEYS.PROJECT_NAME_MAP] || {};
+    } catch (error) {
+      logger.error("Failed to get project name map", error);
+      return {};
+    }
+  }
+
+  async getProjectName(projectId: string): Promise<string | null> {
+    try {
+      const map = await this.getProjectNameMap();
+      const value = map[projectId];
+      return typeof value === "string" ? value : null;
+    } catch (error) {
+      logger.error("Failed to get project name", error);
+      return null;
+    }
+  }
+
+  async setProjectName(projectId: string, projectName: string): Promise<void> {
+    if (!projectId || !projectName) return;
+
+    try {
+      const map = await this.getProjectNameMap();
+      if (map[projectId] === projectName) {
+        return;
+      }
+
+      const updated = { ...map, [projectId]: projectName };
+      await chrome.storage.local.set({
+        [STORAGE_KEYS.PROJECT_NAME_MAP]: updated,
+      });
+
+      logger.storage("Project name map updated", {
+        projectId,
+        projectName,
+      });
+    } catch (error) {
+      logger.error("Failed to set project name", error);
     }
   }
 }

@@ -4,9 +4,9 @@ module.exports = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '\\.(css|less|scss|sass)$': '<rootDir>/src/test/mocks/styleMock.js',
     '^.+\\.svg$': '<rootDir>/src/test/mocks/svg.ts',
+    '^@/(.*)$': '<rootDir>/src/$1',
   },
   transform: {
     '^.+\\.tsx?$': [
@@ -16,6 +16,7 @@ module.exports = {
         isolatedModules: true,
         tsconfig: {
           jsx: 'react-jsx',
+          esModuleInterop: true,
         },
       },
     ],

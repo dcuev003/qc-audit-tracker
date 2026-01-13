@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useStore } from "@/ui/store";
 import type { ProjectOverride } from "@/shared/types/storage";
 import type { AppStore, UserSettings } from "@/ui/store/types";
-import { formatTimeSeconds, parseTimeString } from "@/projectUtils";
+import { formatTimeSeconds } from "@/projectUtils";
 import {
 	Clock,
 	Globe,
@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 import pkg from "../../../package.json";
+import { z } from "zod";
+import { UserSettingsSchema } from "@/shared/validation";
 
 // Toggle Switch Component
 const ToggleSwitch: React.FC<{
@@ -157,6 +159,76 @@ export default function Settings() {
 	const [newMaxTime, setNewMaxTime] = useState("");
 	const [emergencyControlsEnabled, setEmergencyControlsEnabled] =
 		useState(false);
+	
+	// Validation errors state
+	const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+	const [overrideErrors, setOverrideErrors] = useState<Record<string, string>>({});
+
+	// Validation functions
+	const validateField = (fieldName: string, value: any): string | null => {
+		try {
+			const fieldSchema = UserSettingsSchema.shape[fieldName as keyof typeof UserSettingsSchema.shape];
+			if (fieldSchema) {
+				fieldSchema.parse(value);
+			}
+			return null;
+		} catch (error) {
+			if (error instanceof z.ZodError) {
+				return error.issues[0]?.message || "Invalid value";
+			}
+			return "Validation error";
+		}
+	};
+
+	const validateSettings = (): boolean => {
+		try {
+			UserSettingsSchema.parse(localSettings);
+			setValidationErrors({});
+			return true;
+		} catch (error) {
+			if (error instanceof z.ZodError) {
+				const errors: Record<string, string> = {};
+				error.issues.forEach((issue) => {
+					if (issue.path[0]) {
+						errors[issue.path[0].toString()] = issue.message;
+					}
+				});
+				setValidationErrors(errors);
+				return false;
+			}
+			return false;
+		}
+	};
+
+	const validateProjectOverride = (): boolean => {
+		const errors: Record<string, string> = {};
+		
+		// Validate project ID
+		if (!newProjectId.trim()) {
+			errors.projectId = "Project ID is required";
+		} else if (!/^[a-f\d]{24}$/i.test(newProjectId.trim())) {
+			errors.projectId = "Invalid project ID format (must be 24 hex characters)";
+		}
+		
+		// Validate max time if provided
+		if (newMaxTime.trim()) {
+			const timeMatch = newMaxTime.trim().match(/^(\d+)h\s*(\d*)m?$/);
+			if (!timeMatch) {
+				errors.maxTime = "Invalid format. Use '2h 30m' or '3h'";
+			} else {
+				const hours = parseInt(timeMatch[1], 10);
+				const minutes = parseInt(timeMatch[2] || '0', 10);
+				if (hours < 0 || hours > 24) {
+					errors.maxTime = "Hours must be between 0 and 24";
+				} else if (minutes < 0 || minutes >= 60) {
+					errors.maxTime = "Minutes must be between 0 and 59";
+				}
+			}
+		}
+		
+		setOverrideErrors(errors);
+		return Object.keys(errors).length === 0;
+	};
 
 	// Calculate extension health
 	const calculateExtensionHealth = () => {
@@ -214,9 +286,17 @@ export default function Settings() {
 		setIsSaving(true);
 		setSaveMessage(null);
 
+		// Validate settings before saving
+		if (!validateSettings()) {
+			setSaveMessage("Please fix validation errors before saving");
+			setIsSaving(false);
+			return;
+		}
+
 		try {
 			await updateSettings(localSettings);
 			setSaveMessage("Settings saved successfully!");
+			setValidationErrors({});
 			setTimeout(() => setSaveMessage(null), 3000);
 		} catch (error) {
 			console.error("Error saving settings:", error);
@@ -249,16 +329,46 @@ export default function Settings() {
 		}
 	};
 
+	// Input change handlers with validation
+	const handleSettingsChange = (field: keyof UserSettings, value: any) => {
+		setLocalSettings((prev) => ({ ...prev, [field]: value }));
+		
+		// Clear error for this field when user starts typing
+		if (validationErrors[field]) {
+			const newErrors = { ...validationErrors };
+			delete newErrors[field];
+			setValidationErrors(newErrors);
+		}
+		
+		// Validate on change for better UX
+		const error = validateField(field, value);
+		if (error) {
+			setValidationErrors((prev) => ({ ...prev, [field]: error }));
+		}
+	};
+
 	const handleAddOverride = async () => {
-		if (!newProjectId.trim()) return;
+		// Validate override data
+		if (!validateProjectOverride()) {
+			return;
+		}
 
 		try {
+			// Convert time string to seconds for storage
+			let maxTimeSeconds: number | undefined;
+			if (newMaxTime.trim()) {
+				const timeMatch = newMaxTime.trim().match(/^(\d+)h\s*(\d*)m?$/);
+				if (timeMatch) {
+					const hours = parseInt(timeMatch[1], 10);
+					const minutes = parseInt(timeMatch[2] || '0', 10);
+					maxTimeSeconds = (hours * 3600) + (minutes * 60);
+				}
+			}
+			
 			const override: ProjectOverride = {
 				projectId: newProjectId.trim(),
 				displayName: newProjectName.trim() || undefined,
-				maxTime: newMaxTime.trim()
-					? parseTimeString(newMaxTime.trim())
-					: undefined,
+				maxTime: maxTimeSeconds,
 				createdAt: Date.now(),
 				updatedAt: Date.now(),
 			};
@@ -268,8 +378,11 @@ export default function Settings() {
 			setNewProjectName("");
 			setNewMaxTime("");
 			setShowAddOverride(false);
+			setOverrideErrors({});
 		} catch (error) {
 			console.error("Error adding override:", error);
+			setSaveMessage("Error adding project override. Please try again.");
+			setTimeout(() => setSaveMessage(null), 5000);
 		}
 	};
 
@@ -404,18 +517,26 @@ export default function Settings() {
 											type='number'
 											value={localSettings.dailyHoursTarget}
 											onChange={(e) =>
-												setLocalSettings((prev) => ({
-													...prev,
-													dailyHoursTarget: Number(e.target.value),
-												}))
+												handleSettingsChange('dailyHoursTarget', Number(e.target.value))
 											}
 											min='1'
-											max='16'
+											max='24'
 											step='0.5'
-											className='w-20 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+											className={clsx(
+												'w-20 px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500',
+												validationErrors.dailyHoursTarget
+													? 'border-red-300 focus:border-red-500'
+													: 'border-gray-300 focus:border-blue-500'
+											)}
 										/>
 										<span className='text-sm text-gray-600'>hours</span>
 									</div>
+									{validationErrors.dailyHoursTarget && (
+										<p className='text-xs text-red-600 flex items-center gap-1'>
+											<AlertCircle className='h-3 w-3' />
+											{validationErrors.dailyHoursTarget}
+										</p>
+									)}
 									<p className='text-xs text-gray-500'>
 										Your daily work goal displayed in progress summaries
 									</p>
@@ -447,19 +568,27 @@ export default function Settings() {
 											type='number'
 											value={localSettings.dailyOvertimeThreshold}
 											onChange={(e) =>
-												setLocalSettings((prev) => ({
-													...prev,
-													dailyOvertimeThreshold: Number(e.target.value),
-												}))
+												handleSettingsChange('dailyOvertimeThreshold', Number(e.target.value))
 											}
 											disabled={!localSettings.dailyOvertimeEnabled}
 											min='0'
 											max='24'
 											step='0.5'
-											className='w-20 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+											className={clsx(
+												'w-20 px-3 py-2 text-sm border rounded-lg focus:ring-2',
+												validationErrors.dailyOvertimeThreshold
+													? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+													: 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+											)}
 										/>
 										<span className='text-sm text-gray-600'>hours</span>
 									</div>
+									{validationErrors.dailyOvertimeThreshold && localSettings.dailyOvertimeEnabled && (
+										<p className='text-xs text-red-600 flex items-center gap-1'>
+											<AlertCircle className='h-3 w-3' />
+											{validationErrors.dailyOvertimeThreshold}
+										</p>
+									)}
 									<p className='text-xs text-gray-500'>
 										Hours worked beyond this count as overtime (for pay
 										calculations)
@@ -480,17 +609,25 @@ export default function Settings() {
 											type='number'
 											value={localSettings.hourlyRate}
 											onChange={(e) =>
-												setLocalSettings((prev) => ({
-													...prev,
-													hourlyRate: Number(e.target.value),
-												}))
+												handleSettingsChange('hourlyRate', Number(e.target.value))
 											}
 											min='0'
 											step='0.01'
 											placeholder='25.00'
-											className='w-full pl-8 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+											className={clsx(
+												'w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:ring-2',
+												validationErrors.hourlyRate
+													? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+													: 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+											)}
 										/>
 									</div>
+									{validationErrors.hourlyRate && (
+										<p className='text-xs text-red-600 flex items-center gap-1'>
+											<AlertCircle className='h-3 w-3' />
+											{validationErrors.hourlyRate}
+										</p>
+									)}
 									<p className='text-xs text-gray-500'>
 										Used for earnings projections
 									</p>
@@ -522,19 +659,27 @@ export default function Settings() {
 											type='number'
 											value={localSettings.weeklyOvertimeThreshold}
 											onChange={(e) =>
-												setLocalSettings((prev) => ({
-													...prev,
-													weeklyOvertimeThreshold: Number(e.target.value),
-												}))
+												handleSettingsChange('weeklyOvertimeThreshold', Number(e.target.value))
 											}
 											disabled={!localSettings.weeklyOvertimeEnabled}
 											min='0'
 											max='168'
 											step='0.5'
-											className='w-20 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+											className={clsx(
+												'w-20 px-3 py-2 text-sm border rounded-lg focus:ring-2',
+												validationErrors.weeklyOvertimeThreshold
+													? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+													: 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+											)}
 										/>
 										<span className='text-sm text-gray-600'>hours</span>
 									</div>
+									{validationErrors.weeklyOvertimeThreshold && localSettings.weeklyOvertimeEnabled && (
+										<p className='text-xs text-red-600 flex items-center gap-1'>
+											<AlertCircle className='h-3 w-3' />
+											{validationErrors.weeklyOvertimeThreshold}
+										</p>
+									)}
 									<p className='text-xs text-gray-500'>
 										Weekly threshold for overtime calculations
 									</p>
@@ -571,15 +716,23 @@ export default function Settings() {
 											type='email'
 											value={localSettings.email}
 											onChange={(e) =>
-												setLocalSettings((prev) => ({
-													...prev,
-													email: e.target.value,
-												}))
+												handleSettingsChange('email', e.target.value)
 											}
 											placeholder='your.email@outlier.ai'
-											className='w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+											className={clsx(
+												'w-full px-3 py-2 text-sm border rounded-lg focus:ring-2',
+												validationErrors.email
+													? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+													: 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+											)}
 										/>
 									</div>
+									{validationErrors.email && (
+										<p className='text-xs text-red-600 flex items-center gap-1'>
+											<AlertCircle className='h-3 w-3' />
+											{validationErrors.email}
+										</p>
+									)}
 									<p className='text-xs text-gray-500'>
 										{localSettings.email &&
 										localSettings.email === settings.email ? (
@@ -605,18 +758,26 @@ export default function Settings() {
 												type='number'
 												value={localSettings.overtimeRate}
 												onChange={(e) =>
-													setLocalSettings((prev) => ({
-														...prev,
-														overtimeRate: Number(e.target.value),
-													}))
+													handleSettingsChange('overtimeRate', Number(e.target.value))
 												}
 												min='1'
 												max='5'
 												step='0.05'
 												placeholder='1.25'
-												className='w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+												className={clsx(
+													'w-full px-3 py-2 text-sm border rounded-lg focus:ring-2',
+													validationErrors.overtimeRate
+														? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+														: 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+												)}
 											/>
 										</div>
+										{validationErrors.overtimeRate && (
+											<p className='text-xs text-red-600 flex items-center gap-1'>
+												<AlertCircle className='h-3 w-3' />
+												{validationErrors.overtimeRate}
+											</p>
+										)}
 										<p className='text-xs text-gray-500'>
 											Overtime pay multiplier (e.g., 1.25 = 25% increase, 1.5 =
 											50% increase)
@@ -663,10 +824,31 @@ export default function Settings() {
 											<input
 												type='text'
 												value={newProjectId}
-												onChange={(e) => setNewProjectId(e.target.value)}
+												onChange={(e) => {
+													setNewProjectId(e.target.value);
+													// Clear error when user starts typing
+													if (overrideErrors.projectId) {
+														setOverrideErrors((prev) => {
+															const newErrors = { ...prev };
+															delete newErrors.projectId;
+															return newErrors;
+														});
+													}
+												}}
 												placeholder='e.g., 683e729ecaf6d16374e6fc5b'
-												className='w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500'
+												className={clsx(
+													'w-full px-3 py-2 text-sm border rounded-lg focus:ring-2',
+													overrideErrors.projectId
+														? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+														: 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+												)}
 											/>
+											{overrideErrors.projectId && (
+												<p className='text-xs text-red-600 flex items-center gap-1 mt-1'>
+													<AlertCircle className='h-3 w-3' />
+													{overrideErrors.projectId}
+												</p>
+											)}
 										</div>
 										<div>
 											<label className='block text-sm font-medium text-gray-700 mb-1'>
@@ -687,10 +869,31 @@ export default function Settings() {
 											<input
 												type='text'
 												value={newMaxTime}
-												onChange={(e) => setNewMaxTime(e.target.value)}
+												onChange={(e) => {
+													setNewMaxTime(e.target.value);
+													// Clear error when user starts typing
+													if (overrideErrors.maxTime) {
+														setOverrideErrors((prev) => {
+															const newErrors = { ...prev };
+															delete newErrors.maxTime;
+															return newErrors;
+														});
+													}
+												}}
 												placeholder='e.g., 2h 30m'
-												className='w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500'
+												className={clsx(
+													'w-full px-3 py-2 text-sm border rounded-lg focus:ring-2',
+													overrideErrors.maxTime
+														? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+														: 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+												)}
 											/>
+											{overrideErrors.maxTime && (
+												<p className='text-xs text-red-600 flex items-center gap-1 mt-1'>
+													<AlertCircle className='h-3 w-3' />
+													{overrideErrors.maxTime}
+												</p>
+											)}
 										</div>
 									</div>
 									<div className='flex justify-end gap-2 mt-4'>
