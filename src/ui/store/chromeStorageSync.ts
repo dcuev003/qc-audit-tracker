@@ -175,15 +175,41 @@ export class ChromeStorageSync {
     console.log('[ChromeStorageSync] Cleared listeners but kept storage listener active');
   }
   
-  static destroyInstance() {
-    console.log('[ChromeStorageSync] Destroying singleton instance');
-    if (ChromeStorageSync.instance?.storageListener) {
-      chrome.storage.onChanged.removeListener(ChromeStorageSync.instance.storageListener);
+  static getInstance(): ChromeStorageSync {
+    if (!ChromeStorageSync.instance) {
+      new ChromeStorageSync();
     }
-    if (ChromeStorageSync.instance) {
-      ChromeStorageSync.instance.listeners.clear();
-      ChromeStorageSync.instance.initialized = false;
-    }
-    ChromeStorageSync.instance = undefined;
+    return ChromeStorageSync.instance!;
+  }
+
+  async setActiveTimers(state: ActiveTimerState): Promise<void> {
+    await chrome.storage.local.set({ [ACTIVE_TIMERS_STORAGE_KEY]: state });
+  }
+
+  async getOffPlatformTimerState(): Promise<any> {
+    const result = await chrome.storage.local.get(['offPlatformTimer', 'offPlatformDescriptions']);
+    return {
+      timer: result.offPlatformTimer,
+      descriptions: result.offPlatformDescriptions
+    };
+  }
+
+  async setOffPlatformTimerState(state: { timer?: any, descriptions?: any }): Promise<void> {
+    const updates: any = {};
+    if (state.timer !== undefined) updates.offPlatformTimer = state.timer;
+    if (state.descriptions !== undefined) updates.offPlatformDescriptions = state.descriptions;
+    await chrome.storage.local.set(updates);
+  }
+  
+  async removeOffPlatformTimerState(keys: string[]): Promise<void> {
+    await chrome.storage.local.remove(keys);
+  }
+
+  async getBytesInUse(keys: string | string[] | null): Promise<number> {
+    return new Promise((resolve) => {
+      chrome.storage.local.getBytesInUse(keys, (bytes) => {
+        resolve(bytes);
+      });
+    });
   }
 }

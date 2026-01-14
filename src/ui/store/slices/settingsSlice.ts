@@ -1,6 +1,7 @@
 import { StateCreator } from 'zustand';
 import { AppStore, UserSettings } from '../types';
 import { createLogger } from '@/shared/logger';
+import { ChromeStorageSync } from '../chromeStorageSync';
 
 const logger = createLogger('SettingsSlice');
 
@@ -37,19 +38,7 @@ export const createSettingsSlice: StateCreator<
       set({ settings: newSettings });
 
       // Sync all settings with Chrome storage
-      await chrome.storage.local.set({
-        qcDevLogging: newSettings.qcDevLogging,
-        trackingEnabled: newSettings.trackingEnabled,
-        dailyOvertimeEnabled: newSettings.dailyOvertimeEnabled,
-        dailyOvertimeThreshold: newSettings.dailyOvertimeThreshold,
-        dailyHoursTarget: newSettings.dailyHoursTarget,
-        weeklyOvertimeEnabled: newSettings.weeklyOvertimeEnabled,
-        weeklyOvertimeThreshold: newSettings.weeklyOvertimeThreshold,
-        hourlyRate: newSettings.hourlyRate,
-        overtimeRate: newSettings.overtimeRate,
-        timezone: newSettings.timezone,
-        email: newSettings.email,
-      });
+      await ChromeStorageSync.getInstance().setSettings(newSettings);
 
       logger.info('Settings updated', newSettings);
     } catch (error) {

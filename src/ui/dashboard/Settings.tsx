@@ -25,6 +25,7 @@ import clsx from "clsx";
 import pkg from "../../../package.json";
 import { z } from "zod";
 import { UserSettingsSchema } from "@/shared/validation";
+import { ChromeStorageSync } from "../store/chromeStorageSync";
 
 // Toggle Switch Component
 const ToggleSwitch: React.FC<{
@@ -252,17 +253,16 @@ export default function Settings() {
 			}
 		}
 
+
 		// Check storage usage
-		if (chrome?.storage?.local) {
-			chrome.storage.local.getBytesInUse(null, (bytes) => {
-				const mb = bytes / (1024 * 1024);
-				if (mb > 4) {
-					// Chrome local storage limit is 5MB
-					score -= 15;
-					issues.push("High storage usage");
-				}
-			});
-		}
+		ChromeStorageSync.getInstance().getBytesInUse(null).then((bytes) => {
+			const mb = bytes / (1024 * 1024);
+			if (mb > 4) {
+				// Chrome local storage limit is 5MB
+				score -= 15;
+				issues.push("High storage usage");
+			}
+		}).catch(console.error);
 
 		return { score, issues };
 	};
@@ -414,9 +414,7 @@ export default function Settings() {
 	const handleClearActiveTimers = async (): Promise<void> => {
 		try {
 			// Clear active timers from Chrome storage
-			await chrome.storage.local.set({
-				activeTimers: { lastUpdated: Date.now() },
-			});
+			await ChromeStorageSync.getInstance().setActiveTimers({ lastUpdated: Date.now() });
 
 			// Force store to refresh by getting current state
 			// This will trigger a re-sync with Chrome storage

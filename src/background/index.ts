@@ -20,7 +20,7 @@ class BackgroundService {
   constructor() {
     this.timer = new TimerManager();
     this.storage = new StorageManager();
-    this.activeTimerManager = new ActiveTimerManager();
+    this.activeTimerManager = new ActiveTimerManager(this.storage);
     this.messages = new MessageHandler({
       onStartTracking: this.startTracking.bind(this),
       onStopTracking: this.stopTracking.bind(this),
@@ -675,7 +675,8 @@ chrome.runtime.onInstalled.addListener((details) => {
   
   if (details.reason === 'install') {
     // Set default settings on first install
-    chrome.storage.local.set({
+    const storage = new StorageManager();
+    storage.updateSettings({
       trackingEnabled: true,
       qcDevLogging: false
     });

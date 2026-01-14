@@ -4,6 +4,7 @@ import { formatSecondsToHHMMSS } from "@/shared/timeUtils";
 import { ChevronDown, Play, Pause, Square, Check, Edit3 } from "lucide-react";
 import ConfirmModal from "./ConfirmModal";
 import { MessageType } from "@/shared/types/messages";
+import { ChromeStorageSync } from "../store/chromeStorageSync";
 
 const ACTIVITY_TYPES = [
 	{ value: "auditing", label: "Auditing" },
@@ -79,17 +80,19 @@ const OffPlatformTimer: React.FC = () => {
 		}
 
 		// Fallback to old Chrome storage method for backwards compatibility
-		chrome.storage.local.get(
-			["offPlatformTimer", "offPlatformDescriptions"],
-			(result) => {
-				if (result.offPlatformTimer) {
+		const loadFallbackState = async () => {
+			try {
+				const result = await ChromeStorageSync.getInstance().getOffPlatformTimerState();
+				const { timer, descriptions } = result;
+
+				if (timer) {
 					const {
 						isRunning,
 						activity,
 						startTime,
 						elapsedSeconds,
 						description,
-					} = result.offPlatformTimer;
+					} = timer;
 					if (isRunning && startTime) {
 						// Calculate elapsed time since last update
 						const now = Date.now();
@@ -107,14 +110,20 @@ const OffPlatformTimer: React.FC = () => {
 				}
 
 				// Load saved descriptions
-				if (result.offPlatformDescriptions) {
-					setActivityDescriptions(result.offPlatformDescriptions);
-					setDescription(
-						result.offPlatformDescriptions[selectedActivity] || ""
-					);
+				if (descriptions) {
+					setActivityDescriptions(descriptions);
+					if (timer && timer.activity) {
+						setDescription(descriptions[timer.activity] || "");
+					} else {
+						setDescription(descriptions[selectedActivity] || "");
+					}
 				}
+			} catch (error) {
+				console.error("Failed to load fallback state", error);
 			}
-		);
+		};
+
+		loadFallbackState();
 	}, [activeTimers]);
 
 	// Update timer every second (only if not using active timer from store)
@@ -166,15 +175,15 @@ const OffPlatformTimer: React.FC = () => {
 
 	// Save timer state to Chrome storage whenever it changes
 	useEffect(() => {
-		chrome.storage.local.set({
-			offPlatformTimer: {
+		ChromeStorageSync.getInstance().setOffPlatformTimerState({
+			timer: {
 				isRunning,
 				activity: selectedActivity,
 				startTime,
 				elapsedSeconds,
 				description,
 			},
-			offPlatformDescriptions: activityDescriptions,
+			descriptions: activityDescriptions,
 		});
 	}, [
 		isRunning,
@@ -388,7 +397,7 @@ const OffPlatformTimer: React.FC = () => {
 		setShowDescriptionSpace(false);
 
 		// Clear storage but keep descriptions
-		chrome.storage.local.remove(["offPlatformTimer"]);
+		ChromeStorageSync.getInstance().removeOffPlatformTimerState(["offPlatformTimer"]);
 
 		// Don't auto-close the timer section when stopping
 		// User can manually hide it after stopping

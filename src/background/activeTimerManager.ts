@@ -9,7 +9,6 @@ import {
 	ActiveTimerState, 
 	ActiveAuditTimer, 
 	ActiveOffPlatformTimer,
-	ACTIVE_TIMERS_STORAGE_KEY,
 	TIMER_UPDATE_ALARM
 } from '@/shared/types/activeTimers';
 import { 
@@ -19,13 +18,16 @@ import {
 	ActiveTimerStoppedPayload 
 } from '@/shared/types/messages';
 import { createLogger } from '@/shared/logger';
+import { StorageManager } from './storage';
 
 export class ActiveTimerManager {
 	private logger: ReturnType<typeof createLogger>;
 	private updateAlarmActive = false;
+	private storage: StorageManager;
 
-	constructor() {
+	constructor(storage: StorageManager) {
 		this.logger = createLogger('ActiveTimerManager');
+		this.storage = storage;
 		this.setupAlarmListener();
 		this.initializeTimers();
 	}
@@ -203,25 +205,14 @@ export class ActiveTimerManager {
 	 * Get current active timers
 	 */
 	async getActiveTimers(): Promise<ActiveTimerState> {
-		return new Promise((resolve) => {
-			chrome.storage.local.get([ACTIVE_TIMERS_STORAGE_KEY], (result) => {
-				const defaultState: ActiveTimerState = {
-					lastUpdated: Date.now()
-				};
-				resolve(result[ACTIVE_TIMERS_STORAGE_KEY] || defaultState);
-			});
-		});
+		return this.storage.getActiveTimers();
 	}
 
 	/**
 	 * Save active timers to storage
 	 */
 	private async saveActiveTimers(timers: ActiveTimerState): Promise<void> {
-		return new Promise((resolve) => {
-			chrome.storage.local.set({ [ACTIVE_TIMERS_STORAGE_KEY]: timers }, () => {
-				resolve();
-			});
-		});
+		return this.storage.saveActiveTimers(timers);
 	}
 
 	/**

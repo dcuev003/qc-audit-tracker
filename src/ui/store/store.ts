@@ -124,7 +124,7 @@ export const useStore = create<AppStore>()(
         // Save to Chrome storage to notify all contexts
         try {
           console.log('[Store] Saving to Chrome storage...');
-          await chrome.storage.local.set({ [ACTIVE_TIMERS_STORAGE_KEY]: activeTimers });
+          await ChromeStorageSync.getInstance().setActiveTimers(activeTimers);
           console.log('[Store] Successfully saved to Chrome storage');
         } catch (error) {
           console.error('[Store] Failed to save to Chrome storage:', error);

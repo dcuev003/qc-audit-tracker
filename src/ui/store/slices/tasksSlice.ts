@@ -2,7 +2,7 @@ import { StateCreator } from 'zustand';
 import { AppStore } from '../types';
 import { Task, OffPlatformTimeEntry, ProjectOverride } from '@/shared/types/storage';
 import { createLogger } from '@/shared/logger';
-import { STORAGE_KEYS } from '@/shared/constants';
+import { ChromeStorageSync } from '../chromeStorageSync';
 
 const logger = createLogger('TasksSlice');
 
@@ -36,28 +36,22 @@ export const createTasksSlice: StateCreator<
 
   loadTasks: async () => {
     try {
-      const result = await chrome.storage.local.get([
-        STORAGE_KEYS.COMPLETED_TASKS,
-        STORAGE_KEYS.OFF_PLATFORM_TIME,
-        STORAGE_KEYS.PROJECT_OVERRIDES,
-        STORAGE_KEYS.PROJECT_NAME_MAP,
+      const storage = ChromeStorageSync.getInstance();
+      const [tasks, offPlatformEntries, projectOverrides, projectNameMap] = await Promise.all([
+        storage.getTasks(),
+        storage.getOffPlatformEntries(),
+        storage.getProjectOverrides(),
+        storage.getProjectNameMap()
       ]);
       
       // Filter tasks to get only last month's data
       const oneMonthAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
-      const projectNameMap: Record<string, string> = result[STORAGE_KEYS.PROJECT_NAME_MAP] || {};
-      const rawTasks: Task[] = result[STORAGE_KEYS.COMPLETED_TASKS] || [];
-      const rawOffPlatform: OffPlatformTimeEntry[] = result[STORAGE_KEYS.OFF_PLATFORM_TIME] || [];
-      const overridesSource = result[STORAGE_KEYS.PROJECT_OVERRIDES] || [];
-      const overridesArray: ProjectOverride[] = Array.isArray(overridesSource)
-        ? overridesSource
-        : Object.values(overridesSource);
-
-      const tasks = rawTasks.filter((task: Task) => 
+      
+      const filteredTasks = tasks.filter((task: Task) => 
         task.startTime >= oneMonthAgo
       );
 
-      const enrichedTasks = tasks.map((task: Task) => {
+      const enrichedTasks = filteredTasks.map((task: Task) => {
         if (task.projectId && !task.projectName) {
           const mapped = projectNameMap[task.projectId];
           if (mapped) {
@@ -69,8 +63,8 @@ export const createTasksSlice: StateCreator<
       
       set({
         tasks: enrichedTasks,
-        offPlatformEntries: rawOffPlatform,
-        projectOverrides: overridesArray,
+        offPlatformEntries,
+        projectOverrides,
       });
       
       // Update computed values after loading data
@@ -78,8 +72,8 @@ export const createTasksSlice: StateCreator<
       
       logger.info('Tasks loaded', { 
         tasksCount: enrichedTasks.length,
-        offPlatformCount: rawOffPlatform.length,
-        overridesCount: overridesArray.length,
+        offPlatformCount: offPlatformEntries.length,
+        overridesCount: projectOverrides.length,
       });
     } catch (error) {
       logger.error('Failed to load tasks', error);
@@ -91,7 +85,7 @@ export const createTasksSlice: StateCreator<
     try {
       const tasks = [...get().tasks, task];
       set({ tasks });
-      await chrome.storage.local.set({ completedTasks: tasks });
+      await ChromeStorageSync.getInstance().setTasks(tasks);
       
       // Update computed values after adding task
       get().updateComputedValues();
@@ -109,7 +103,7 @@ export const createTasksSlice: StateCreator<
         task.qaOperationId === qaOperationId ? { ...task, ...updates } : task
       );
       set({ tasks });
-      await chrome.storage.local.set({ completedTasks: tasks });
+      await ChromeStorageSync.getInstance().setTasks(tasks);
       
       // Update computed values after updating task
       get().updateComputedValues();
@@ -125,7 +119,7 @@ export const createTasksSlice: StateCreator<
     try {
       const tasks = get().tasks.filter(task => task.qaOperationId !== qaOperationId);
       set({ tasks });
-      await chrome.storage.local.set({ completedTasks: tasks });
+      await ChromeStorageSync.getInstance().setTasks(tasks);
       
       // Update computed values after deleting task
       get().updateComputedValues();
@@ -141,7 +135,7 @@ export const createTasksSlice: StateCreator<
     try {
       const entries = [...get().offPlatformEntries, entry];
       set({ offPlatformEntries: entries });
-      await chrome.storage.local.set({ offPlatformTime: entries });
+      await ChromeStorageSync.getInstance().setOffPlatformEntries(entries);
       
       // Update computed values after adding off-platform entry
       get().updateComputedValues();
@@ -159,7 +153,7 @@ export const createTasksSlice: StateCreator<
         entry.id === id ? { ...entry, ...updates } : entry
       );
       set({ offPlatformEntries: entries });
-      await chrome.storage.local.set({ offPlatformTime: entries });
+      await ChromeStorageSync.getInstance().setOffPlatformEntries(entries);
       
       // Update computed values after updating off-platform entry
       get().updateComputedValues();
@@ -175,7 +169,7 @@ export const createTasksSlice: StateCreator<
     try {
       const entries = get().offPlatformEntries.filter(entry => entry.id !== id);
       set({ offPlatformEntries: entries });
-      await chrome.storage.local.set({ offPlatformTime: entries });
+      await ChromeStorageSync.getInstance().setOffPlatformEntries(entries);
       
       // Update computed values after deleting off-platform entry
       get().updateComputedValues();
@@ -201,7 +195,7 @@ export const createTasksSlice: StateCreator<
       }
       
       set({ projectOverrides: newOverrides });
-      await chrome.storage.local.set({ projectOverrides: newOverrides });
+      await ChromeStorageSync.getInstance().setProjectOverrides(newOverrides);
       logger.info('Project override updated', override);
     } catch (error) {
       logger.error('Failed to update project override', error);
@@ -213,7 +207,7 @@ export const createTasksSlice: StateCreator<
     try {
       const overrides = get().projectOverrides.filter(o => o.projectId !== projectId);
       set({ projectOverrides: overrides });
-      await chrome.storage.local.set({ projectOverrides: overrides });
+      await ChromeStorageSync.getInstance().setProjectOverrides(overrides);
       logger.info('Project override deleted', projectId);
     } catch (error) {
       logger.error('Failed to delete project override', error);

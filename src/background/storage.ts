@@ -5,12 +5,30 @@ import {
   TimerState,
   ExtensionSettings,
 } from "../shared/types/storage";
+import { ActiveTimerState, ACTIVE_TIMERS_STORAGE_KEY } from "../shared/types/activeTimers";
 import { STORAGE_KEYS } from "../shared/constants";
 import { createLogger } from '@/shared/logger';
 
 const logger = createLogger('Storage');
 
 export class StorageManager {
+  async getActiveTimers(): Promise<ActiveTimerState> {
+    try {
+      const result = await chrome.storage.local.get(ACTIVE_TIMERS_STORAGE_KEY);
+      return result[ACTIVE_TIMERS_STORAGE_KEY] || { lastUpdated: Date.now() };
+    } catch (error) {
+      logger.error('Failed to get active timers', error);
+      return { lastUpdated: Date.now() };
+    }
+  }
+
+  async saveActiveTimers(timers: ActiveTimerState): Promise<void> {
+    try {
+      await chrome.storage.local.set({ [ACTIVE_TIMERS_STORAGE_KEY]: timers });
+    } catch (error) {
+      logger.error('Failed to save active timers', error);
+    }
+  }
   async getState(): Promise<{
     currentTask: Task | null;
     timerRunning: boolean;
