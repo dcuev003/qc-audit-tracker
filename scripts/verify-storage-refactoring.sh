@@ -201,12 +201,18 @@ echo -e "${YELLOW}Phase 6: Running unit tests...${NC}"
 if command -v pnpm &> /dev/null; then
   cd "$PROJECT_ROOT"
   
+  # Temporarily disable exit-on-error to capture test exit code
+  set +e
+  
   # Run tests and capture both output and exit code
   TEST_OUTPUT=$(pnpm test:run 2>&1)
   TEST_EXIT_CODE=$?
   
-  # Show last 20 lines of output
-  echo "$TEST_OUTPUT" | tail -20
+  # Re-enable exit-on-error
+  set -e
+  
+  # Show last 30 lines of output to ensure failure details are visible
+  echo "$TEST_OUTPUT" | tail -30
   
   if [ $TEST_EXIT_CODE -eq 0 ]; then
     echo -e "${GREEN}✓ PASSED: Unit tests passed${NC}"
