@@ -6,34 +6,34 @@ export class ChromeStorageSync {
     this.initialized = true;
     this.listeners = new Map();
   }
-  
+
   initListener() {
     // No-op - prevent chrome.storage access
   }
-  
+
   subscribe(key, callback) {
     if (!this.listeners.has(key)) {
       this.listeners.set(key, new Set());
     }
     this.listeners.get(key).add(callback);
-    
+
     return () => {
       this.listeners.get(key)?.delete(callback);
     };
   }
-  
+
   async getTasks() {
     return [];
   }
-  
+
   async getOffPlatformEntries() {
     return [];
   }
-  
+
   async getProjectOverrides() {
     return [];
   }
-  
+
   async getSettings() {
     return {
       dailyOvertimeEnabled: true,
@@ -49,16 +49,20 @@ export class ChromeStorageSync {
       trackingEnabled: true,
     };
   }
-  
+
   async getActiveTimers() {
     return { lastUpdated: Date.now() };
   }
-  
+
+  async getProjectNameMap() {
+    return {};
+  }
+
   // Mock emit for testing
   emit(key, value) {
     this.listeners.get(key)?.forEach(callback => callback(value));
   }
-  
+
   destroy() {
     this.listeners.clear();
     this.initialized = false;

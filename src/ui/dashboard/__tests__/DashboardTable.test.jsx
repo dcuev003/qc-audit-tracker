@@ -221,19 +221,20 @@ describe('DashboardTable', () => {
       await user.click(projectHeader);
       
       // Check ascending order - project names might be truncated with "..."
+      // Use partial match for beginning of name
       const rows = screen.getAllByRole('row');
-      expect(within(rows[1]).getByText(/Alpha Project/)).toBeInTheDocument();
-      expect(within(rows[2]).getByText(/Beta Project/)).toBeInTheDocument();
-      expect(within(rows[3]).getByText(/Zebra Project/)).toBeInTheDocument();
+      expect(within(rows[1]).getByText(/Alpha/)).toBeInTheDocument();
+      expect(within(rows[2]).getByText(/Beta/)).toBeInTheDocument();
+      expect(within(rows[3]).getByText(/Zebra/)).toBeInTheDocument();
       
       // Click again for descending
       await user.click(projectHeader);
       
       // Get fresh rows reference after re-render
       const rowsAfterSecondClick = screen.getAllByRole('row');
-      expect(within(rowsAfterSecondClick[1]).getByText(/Zebra Project/)).toBeInTheDocument();
-      expect(within(rowsAfterSecondClick[2]).getByText(/Beta Project/)).toBeInTheDocument();
-      expect(within(rowsAfterSecondClick[3]).getByText(/Alpha Project/)).toBeInTheDocument();
+      expect(within(rowsAfterSecondClick[1]).getByText(/Zebra/)).toBeInTheDocument();
+      expect(within(rowsAfterSecondClick[2]).getByText(/Beta/)).toBeInTheDocument();
+      expect(within(rowsAfterSecondClick[3]).getByText(/Alpha/)).toBeInTheDocument();
     });
 
     it('sorts by duration correctly', async () => {
@@ -390,7 +391,7 @@ describe('DashboardTable', () => {
       const entries = [
         createMockDashboardEntry({ 
           id: 'task-1',
-          projectName: 'Original Name',
+          projectName: 'OrigName', // Short name to avoid truncation
           projectId: 'proj-123'
         })
       ];
@@ -398,7 +399,7 @@ describe('DashboardTable', () => {
       renderWithProviders(<DashboardTable {...defaultProps} entries={entries} />);
       
       // Since we mocked InlineEdit to just show the value, we should see the project name
-      expect(screen.getByText(/Original Name/)).toBeInTheDocument();
+      expect(screen.getByText(/OrigName/)).toBeInTheDocument();
     });
 
     it('displays editable max times', async () => {
@@ -498,7 +499,7 @@ describe('DashboardTable', () => {
         createMockDashboardEntry({ 
           isLive: true,
           status: 'in-progress',
-          projectName: 'Active Project'
+          projectName: 'LiveProj' // Short name to avoid truncation
         })
       ];
 
@@ -512,8 +513,8 @@ describe('DashboardTable', () => {
       });
       expect(statusCell).toBeTruthy();
       
-      // Project name might be truncated
-      expect(screen.getByText(/Active Project/)).toBeInTheDocument();
+      // Project name - using short name to avoid truncation issues
+      expect(screen.getByText(/LiveProj/)).toBeInTheDocument();
     });
   });
 
