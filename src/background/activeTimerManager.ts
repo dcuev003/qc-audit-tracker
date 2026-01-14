@@ -9,6 +9,7 @@ import {
 	ActiveTimerState, 
 	ActiveAuditTimer, 
 	ActiveOffPlatformTimer,
+	ACTIVE_TIMERS_STORAGE_KEY,
 	TIMER_UPDATE_ALARM
 } from '@/shared/types/activeTimers';
 import { 
@@ -23,9 +24,9 @@ import { StorageManager } from './storage';
 export class ActiveTimerManager {
 	private logger: ReturnType<typeof createLogger>;
 	private updateAlarmActive = false;
-	private storage: StorageManager;
+	private storage?: StorageManager;
 
-	constructor(storage: StorageManager) {
+	constructor(storage?: StorageManager) {
 		this.logger = createLogger('ActiveTimerManager');
 		this.storage = storage;
 		this.setupAlarmListener();
@@ -205,14 +206,35 @@ export class ActiveTimerManager {
 	 * Get current active timers
 	 */
 	async getActiveTimers(): Promise<ActiveTimerState> {
-		return this.storage.getActiveTimers();
+		// Use StorageManager if provided, otherwise fall back to direct chrome.storage
+		if (this.storage) {
+			return this.storage.getActiveTimers();
+		}
+		// Fallback for backward compatibility with tests
+		return new Promise((resolve) => {
+			chrome.storage.local.get([ACTIVE_TIMERS_STORAGE_KEY], (result) => {
+				const defaultState: ActiveTimerState = {
+					lastUpdated: Date.now()
+				};
+				resolve(result[ACTIVE_TIMERS_STORAGE_KEY] || defaultState);
+			});
+		});
 	}
 
 	/**
 	 * Save active timers to storage
 	 */
 	private async saveActiveTimers(timers: ActiveTimerState): Promise<void> {
-		return this.storage.saveActiveTimers(timers);
+		// Use StorageManager if provided, otherwise fall back to direct chrome.storage
+		if (this.storage) {
+			return this.storage.saveActiveTimers(timers);
+		}
+		// Fallback for backward compatibility with tests
+		return new Promise((resolve) => {
+			chrome.storage.local.set({ [ACTIVE_TIMERS_STORAGE_KEY]: timers }, () => {
+				resolve();
+			});
+		});
 	}
 
 	/**

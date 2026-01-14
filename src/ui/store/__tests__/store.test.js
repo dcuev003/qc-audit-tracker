@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
-import { resetChromeMocks } from '@/test/mocks/chrome';
+import { resetChromeMocks, mockStorageData } from '@/test/mocks/chrome';
 
 // Mock logger
 vi.mock('@/shared/logger', () => ({
@@ -260,7 +260,7 @@ describe('Zustand Store', () => {
     it('calculates daily hours correctly', async () => {
       // Use real timers for this test to avoid issues with Date
       vi.useRealTimers();
-      
+
       const now = Date.now();
       const oneHour = 60 * 60 * 1000;
 
@@ -274,7 +274,7 @@ describe('Zustand Store', () => {
       const startOfToday = new Date();
       startOfToday.setHours(0, 0, 0, 0);
       const taskStartTime = Math.max(startOfToday.getTime() + oneHour, now - oneHour * 2);
-      
+
       await act(async () => {
         await useStore.getState().addTask({
           qaOperationId: 'task-1',
@@ -290,25 +290,25 @@ describe('Zustand Store', () => {
       expect(state.tasks).toHaveLength(1);
       expect(state.tasks[0].qaOperationId).toBe('task-1');
       expect(state.tasks[0].duration).toBe(oneHour);
-      
+
       // Manually call updateComputedValues to ensure it runs
       act(() => {
         useStore.getState().updateComputedValues();
       });
-      
+
       // Check daily hours
       state = useStore.getState();
       const taskHours = state.dailyHours;
-      
+
       // If still 0, there's an issue with the date filtering
       if (taskHours === 0) {
         const startOfToday = new Date();
         startOfToday.setHours(0, 0, 0, 0);
         throw new Error(`Daily hours calculation failed. Task startTime: ${state.tasks[0].startTime}, startOfToday: ${startOfToday.getTime()}, comparison: ${state.tasks[0].startTime >= startOfToday.getTime()}`);
       }
-      
+
       expect(taskHours).toBeCloseTo(1.0, 1); // Should have 1 hour from task
-      
+
       // Now add off-platform entry with proper date formatting
       await act(async () => {
         // Create today's date string in local timezone
@@ -317,7 +317,7 @@ describe('Zustand Store', () => {
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
         const dateStr = `${year}-${month}-${day}`;
-        
+
         await useStore.getState().addOffPlatformEntry({
           id: 'off-1',
           hours: 1,
@@ -346,7 +346,7 @@ describe('Zustand Store', () => {
           duration: oneHour, // 1 hour duration
           status: 'completed',
         });
-        
+
         // Second task from today
         await useStore.getState().addTask({
           qaOperationId: 'task-2',
@@ -369,7 +369,7 @@ describe('Zustand Store', () => {
     it('includes active timers in calculations', async () => {
       // Use real timers for this test
       vi.useRealTimers();
-      
+
       const now = Date.now();
       const thirtyMinutes = 30 * 60 * 1000;
 
@@ -545,7 +545,8 @@ describe('Zustand Store', () => {
         hourlyRate: 35,
       };
 
-      chrome.storage.local.get.mockResolvedValueOnce(mockData);
+      // Use mockStorageData to set up storage data for all parallel calls in loadTasks
+      mockStorageData(mockData);
 
       // Simulate store initialization
       await act(async () => {
@@ -555,7 +556,7 @@ describe('Zustand Store', () => {
       const state = useStore.getState();
       expect(state.tasks).toHaveLength(1);
       expect(state.offPlatformEntries).toHaveLength(1);
-      
+
       // Settings are loaded separately from chrome storage
       chrome.storage.local.get.mockResolvedValueOnce({ hourlyRate: 35 });
       await act(async () => {
@@ -619,17 +620,17 @@ describe('Zustand Store', () => {
       // Set up both timers
       await act(async () => {
         await useStore.getState().updateActiveTimers({
-          activeAudit: { 
+          activeAudit: {
             qaOperationId: 'qa-123',
             projectId: 'proj-123',
-            type: 'audit', 
+            type: 'audit',
             startTime: Date.now(),
             maxTime: 10800,
             status: 'in-progress',
           },
-          activeOffPlatform: { 
-            id: 'timer-2', 
-            type: 'off_platform', 
+          activeOffPlatform: {
+            id: 'timer-2',
+            type: 'off_platform',
             startTime: Date.now(),
             activityType: 'auditing',
             elapsedSeconds: 0,
@@ -643,9 +644,9 @@ describe('Zustand Store', () => {
       await act(async () => {
         await useStore.getState().updateActiveTimers({
           activeAudit: undefined,
-          activeOffPlatform: { 
-            id: 'timer-2', 
-            type: 'off_platform', 
+          activeOffPlatform: {
+            id: 'timer-2',
+            type: 'off_platform',
             startTime: Date.now(),
             activityType: 'auditing',
             elapsedSeconds: 0,
