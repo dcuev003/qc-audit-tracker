@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build outputs (will be rebuilt in container)
+dist/
+coverage/
+test-results/
+
+# IDE and OS files
+.DS_Store
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Git directory (not needed in container)
+.git/
+
+# Local env files
+.env
+.env.local
+.env.*.local
+
+# Playwright browsers (will be installed separately if needed)
+playwright-report/

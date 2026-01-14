@@ -198,21 +198,58 @@ echo ""
 # =============================================================================
 echo -e "${YELLOW}Phase 6: Running unit tests...${NC}"
 
+TEST_RESULTS_JSON="$PROJECT_ROOT/test-results.json"
+
 if command -v pnpm &> /dev/null; then
   cd "$PROJECT_ROOT"
   
   # Temporarily disable exit-on-error to capture test exit code
   set +e
   
-  # Run tests and capture both output and exit code
-  TEST_OUTPUT=$(pnpm test:run 2>&1)
+  # Run tests with JSON reporter to capture results
+  VITEST_JSON_OUTPUT=$(mktemp)
+  pnpm vitest run --reporter=json --outputFile="$VITEST_JSON_OUTPUT" 2>&1
   TEST_EXIT_CODE=$?
+  
+  # Also run with default reporter for console output
+  TEST_OUTPUT=$(pnpm test:run 2>&1)
   
   # Re-enable exit-on-error
   set -e
   
   # Show last 30 lines of output to ensure failure details are visible
   echo "$TEST_OUTPUT" | tail -30
+  
+  # Parse Vitest JSON output and convert to requested format
+  if [ -f "$VITEST_JSON_OUTPUT" ]; then
+    node -e "
+      const fs = require('fs');
+      try {
+        const vitest = JSON.parse(fs.readFileSync('$VITEST_JSON_OUTPUT', 'utf8'));
+        const tests = [];
+        
+        if (vitest.testResults) {
+          vitest.testResults.forEach(file => {
+            if (file.assertionResults) {
+              file.assertionResults.forEach(test => {
+                tests.push({
+                  name: file.name + '::' + test.ancestorTitles.join('::') + '::' + test.title,
+                  status: test.status === 'passed' ? 'PASSED' : (test.status === 'failed' ? 'FAILED' : 'SKIPPED')
+                });
+              });
+            }
+          });
+        }
+        
+        fs.writeFileSync('$TEST_RESULTS_JSON', JSON.stringify({ tests }, null, 2));
+        console.log('Test results written to $TEST_RESULTS_JSON');
+      } catch (e) {
+        console.error('Failed to parse test results:', e.message);
+      }
+    " 2>/dev/null || echo "  (JSON parsing skipped - Node.js issue)"
+    
+    rm -f "$VITEST_JSON_OUTPUT"
+  fi
   
   if [ $TEST_EXIT_CODE -eq 0 ]; then
     echo -e "${GREEN}✓ PASSED: Unit tests passed${NC}"

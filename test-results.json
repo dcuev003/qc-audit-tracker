@@ -1,0 +1,1216 @@
+{
+  "tests": [
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/lookupUtils.test.ts::lookupUtils::builds link map from nodes array (full and short keys)",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/lookupUtils.test.ts::lookupUtils::builds the correct lookup URL",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/lookupUtils.test.ts::lookupUtils::derives key candidates from cell text",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::cleanProjectName::should remove [SCALE_REF] tags",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::cleanProjectName::should remove any bracketed content",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::cleanProjectName::should remove leading number patterns",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::cleanProjectName::should remove trailing dashes",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::cleanProjectName::should normalize whitespace",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::cleanProjectName::should handle empty or null strings",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::cleanProjectName::should return original if cleaning results in empty string",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::formatTimeSeconds::should format seconds to hours and minutes",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::formatTimeSeconds::should format only minutes when less than an hour",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::formatTimeSeconds::should handle large values",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::parseTimeString::should parse hours and minutes to seconds",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::parseTimeString::should parse hours only",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::parseTimeString::should parse minutes only",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::parseTimeString::should handle invalid formats",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::applyProjectOverrides::should apply display name override",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::applyProjectOverrides::should apply max time override",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::applyProjectOverrides::should apply both overrides",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::applyProjectOverrides::should return original task if no matching override",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::applyProjectOverrides::should handle empty overrides array",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::getEffectiveProjectName::should return override display name if available",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::getEffectiveProjectName::should clean project name if no override",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::getEffectiveProjectName::should return N/A for missing project name",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::getEffectiveMaxTime::should return override max time if available",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::getEffectiveMaxTime::should return original max time if no override",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::getEffectiveMaxTime::should handle zero max time in override",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::hasProjectOverrides::should return true if display name override exists",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::hasProjectOverrides::should return true if max time override exists",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::hasProjectOverrides::should return true if both overrides exist",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::hasProjectOverrides::should return false if no matching project",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::hasProjectOverrides::should return false for empty overrides",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::getCurrentWeekMonday::should return Monday of current week in YYYY-MM-DD format",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::formatActivityTypeForTimesheet::should format known activity types",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::formatActivityTypeForTimesheet::should return original for unknown types",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::formatDateForTimesheet::should format timestamp to MM/DD/YYYY format",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::formatDateForTimesheet::should pad single digit days and months",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::formatMinutesForTimesheet::should convert milliseconds to minutes",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::formatMinutesForTimesheet::should round to nearest minute",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::formatMinutesForTimesheet::should handle zero",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::calculateOvertimeMinutes::should calculate overtime correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::calculateOvertimeMinutes::should return 0 when under max time",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::calculateOvertimeMinutes::should handle zero max time",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::exportForTimesheet::should export audit entries correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::exportForTimesheet::should export overtime entries correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::exportForTimesheet::should export off-platform entries correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::exportForTimesheet::should apply project overrides for overtime calculation",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::exportForTimesheet::should handle multiple entries",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::copyTimesheetToClipboard::should copy TSV data to clipboard successfully",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.js::projectUtils::copyTimesheetToClipboard::should handle clipboard errors",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::getEffectiveProjectName::should return original project name when no overrides exist",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::getEffectiveProjectName::should return override display name when override exists",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::getEffectiveProjectName::should return original name when override has no display name",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::getEffectiveProjectName::should return Unknown Project when task has no project name",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::getEffectiveProjectName::should handle multiple overrides and select the correct one",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::getEffectiveMaxTime::should return original max time when no overrides exist",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::getEffectiveMaxTime::should return override max time when override exists",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::getEffectiveMaxTime::should return original max time when override has no max time",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::getEffectiveMaxTime::should handle task without max time",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::formatTimeSeconds::should format seconds correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::formatTimeSeconds::should handle zero seconds",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::formatTimeSeconds::should handle only minutes",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::formatTimeSeconds::should handle large values",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::formatTimeSeconds::should not round seconds",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::parseTimeString::should parse valid time strings to seconds",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::parseTimeString::should handle different spacing",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::parseTimeString::should handle missing minutes",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::parseTimeString::should handle missing hours",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::parseTimeString::should return 0 for invalid formats",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::parseTimeString::should parse any valid numbers",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/__tests__/projectUtils.test.ts::Project Utils::Integration: format and parse round trip::should maintain value when formatting and parsing",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/background/__tests__/activeTimerManager.test.js::ActiveTimerManager::initialization::should set up alarm listener on construction",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/background/__tests__/activeTimerManager.test.js::ActiveTimerManager::initialization::should recover active timers on startup",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/background/__tests__/activeTimerManager.test.js::ActiveTimerManager::startAuditTimer::should start a new audit timer",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/background/__tests__/activeTimerManager.test.js::ActiveTimerManager::startAuditTimer::should replace existing timer when starting new one",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/background/__tests__/activeTimerManager.test.js::ActiveTimerManager::startOffPlatformTimer::should start a new off-platform timer",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/background/__tests__/activeTimerManager.test.js::ActiveTimerManager::startOffPlatformTimer::should resume existing timer with elapsed time",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/background/__tests__/activeTimerManager.test.js::ActiveTimerManager::stopAuditTimer::should stop active audit timer",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/background/__tests__/activeTimerManager.test.js::ActiveTimerManager::stopAuditTimer::should not stop timer with different ID",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/background/__tests__/activeTimerManager.test.js::ActiveTimerManager::stopAuditTimer::should clear update alarm when no timers remain",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/background/__tests__/activeTimerManager.test.js::ActiveTimerManager::stopOffPlatformTimer::should stop active off-platform timer",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/background/__tests__/activeTimerManager.test.js::ActiveTimerManager::getActiveTimers::should return active timers from storage",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/background/__tests__/activeTimerManager.test.js::ActiveTimerManager::getActiveTimers::should return default state when no timers exist",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/background/__tests__/activeTimerManager.test.js::ActiveTimerManager::alarm handling::should update timers on alarm",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/background/__tests__/activeTimerManager.test.js::ActiveTimerManager::alarm handling::should ignore non-timer alarms",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/background/__tests__/activeTimerManager.test.js::ActiveTimerManager::error handling::should handle storage errors gracefully",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/background/__tests__/activeTimerManager.test.js::ActiveTimerManager::error handling::should handle missing chrome APIs",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/background/__tests__/activeTimerManager.test.js::ActiveTimerManager::concurrent timer operations::should handle simultaneous timer starts",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::startOfDay::should set time to start of day",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::startOfDay::should not modify the original date",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::startOfDay::should handle dates already at start of day",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::endOfDay::should set time to end of day",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::endOfDay::should not modify the original date",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::endOfDay::should handle dates already at end of day",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::startOfWeek::should find start of week (Sunday by default)",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::startOfWeek::should find start of week with Monday as start",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::startOfWeek::should not modify the original date",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::endOfWeek::should find end of week (Saturday by default)",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::endOfWeek::should find end of week with Monday as start",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::endOfWeek::should not modify the original date",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::format::should format date as yyyy-MM-dd",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::format::should pad single digit months and days",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::format::should handle end of year",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::format::should return ISO string for unknown format",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::addDays::should add positive days",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::addDays::should handle negative days",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::addDays::should handle zero days",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::addDays::should preserve time component",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::addDays::should not modify the original date",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::addDays::should handle month boundaries",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::addDays::should handle year boundaries",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::subDays::should subtract positive days",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::subDays::should handle negative days (effectively adding)",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::subDays::should handle zero days",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::subDays::should preserve time component",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::subDays::should not modify the original date",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::subDays::should handle month boundaries",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/dateUtils.test.js::dateUtils::subDays::should handle year boundaries",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::decimalHoursToSeconds::should convert decimal hours to seconds correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::decimalHoursToSeconds::should handle zero value",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::decimalHoursToSeconds::should handle negative values",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::decimalHoursToSeconds::should round to nearest second",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::secondsToDecimalHours::should convert seconds to decimal hours correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::secondsToDecimalHours::should handle zero value",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::secondsToDecimalHours::should handle negative values",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::secondsToDecimalHours::should maintain precision",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatDecimalHoursToHHMM::should format decimal hours to hh:mm correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatDecimalHoursToHHMM::should pad minutes with leading zero",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatDecimalHoursToHHMM::should handle zero value",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatDecimalHoursToHHMM::should handle values over 24 hours",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatDecimalHoursToHHMM::should round minutes correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatSecondsToHHMM::should format seconds to hh:mm correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatSecondsToHHMM::should pad minutes with leading zero",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatSecondsToHHMM::should handle zero value",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatSecondsToHHMM::should truncate seconds",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::parseHHMMToDecimalHours::should parse hh:mm to decimal hours correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::parseHHMMToDecimalHours::should handle single digit hours",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::parseHHMMToDecimalHours::should handle invalid input gracefully",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::parseHHMMToDecimalHours::should handle edge cases",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::parseHHMMToSeconds::should parse hh:mm to seconds correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::parseHHMMToSeconds::should handle invalid input gracefully",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatMillisecondsToHHMM::should format milliseconds to hh:mm correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatMillisecondsToHHMM::should handle zero value",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatMillisecondsToHHMM::should truncate milliseconds",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatSecondsToHHMMSS::should format seconds to hh:mm:ss correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatSecondsToHHMMSS::should pad minutes and seconds with leading zeros",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatSecondsToHHMMSS::should handle zero value",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatSecondsToHHMMSS::should handle values over 24 hours",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::hoursMinutesToDecimal::should convert hours and minutes to decimal correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::hoursMinutesToDecimal::should handle zero values",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::hoursMinutesToDecimal::should handle edge cases",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatHoursDisplay::should format hours in hhmm format by default",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatHoursDisplay::should format hours in decimal format when specified",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::formatHoursDisplay::should handle zero value",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::getDatePresetRange::should return correct range for \"yesterday\"",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::getDatePresetRange::should return correct range for \"week\" (current week Mon-Sun)",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::getDatePresetRange::should return correct range for \"last-week\"",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::getDatePresetRange::should return correct range for \"month\" (current month)",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::getDatePresetRange::should return correct range for \"last-month\"",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::getDatePresetRange::should return null for invalid preset",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/timeUtils.test.js::timeUtils::getDatePresetRange::should handle Sunday correctly for week calculations",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::ProjectOverrideSchema::should validate a valid project override",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::ProjectOverrideSchema::should reject invalid project ID",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::ProjectOverrideSchema::should reject empty display name",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::ProjectOverrideSchema::should allow optional fields to be undefined",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::AuditTaskSchema::should validate a complete audit task",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::AuditTaskSchema::should validate task with pending-transition status",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::AuditTaskSchema::should reject invalid status",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::OffPlatformTimeEntrySchema::should validate a valid off-platform entry",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::OffPlatformTimeEntrySchema::should validate entry without project association",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::OffPlatformTimeEntrySchema::should accept all valid activity types",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::UserSettingsSchema::should validate complete user settings",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::UserSettingsSchema::should validate minimal settings",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::UserSettingsSchema::should reject invalid email",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::UserSettingsSchema::should reject hourly rate over 1000",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::UserSettingsSchema::should reject daily hours over 24",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::AddOffPlatformFormSchema::should validate a valid form submission",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::AddOffPlatformFormSchema::should reject hours over 24",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::AddOffPlatformFormSchema::should reject empty description",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::Inline Edit Schemas::should validate project name edit",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::Inline Edit Schemas::should reject empty project name",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::Inline Edit Schemas::should validate max time edit with various formats",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::Inline Edit Schemas::should reject invalid time formats",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::Inline Edit Schemas::should validate description edit",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::Active Timer Schemas::should validate active audit timer",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::Active Timer Schemas::should validate active off-platform timer",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::Active Timer Schemas::should allow empty description for off-platform timer",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::parseTimeString::should parse valid time strings",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::parseTimeString::should return null for invalid time strings",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::ActivityTypeEnum::should validate all activity types",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/shared/__tests__/validation.test.ts::Validation Schemas::ActivityTypeEnum::should reject invalid activity types",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/popup/__tests__/OffPlatformTimer.test.jsx::OffPlatformTimer::Initial Rendering::renders timer interface correctly",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/popup/__tests__/OffPlatformTimer.test.jsx::OffPlatformTimer::Initial Rendering::shows start button with selected activity",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/popup/__tests__/OffPlatformTimer.test.jsx::OffPlatformTimer::Timer Controls::sends start message when start button clicked",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/popup/__tests__/OffPlatformTimer.test.jsx::OffPlatformTimer::Timer Controls::shows pause button when timer is running",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/popup/__tests__/OffPlatformTimer.test.jsx::OffPlatformTimer::Timer Controls::sends stop message when pause button clicked",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/popup/__tests__/OffPlatformTimer.test.jsx::OffPlatformTimer::Timer Controls::shows stop confirmation on first click",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/popup/__tests__/OffPlatformTimer.test.jsx::OffPlatformTimer::Timer Controls::stops timer on double click",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/popup/__tests__/OffPlatformTimer.test.jsx::OffPlatformTimer::Activity Selection::shows activity menu when clicked",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/popup/__tests__/OffPlatformTimer.test.jsx::OffPlatformTimer::Activity Selection::changes activity when not running",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/popup/__tests__/OffPlatformTimer.test.jsx::OffPlatformTimer::Activity Selection::shows confirmation when changing activity while running with elapsed time",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/popup/__tests__/OffPlatformTimer.test.jsx::OffPlatformTimer::Activity Selection::changes activity and restarts timer when confirmed",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/popup/__tests__/OffPlatformTimer.test.jsx::OffPlatformTimer::Timer Display Updates::shows elapsed time correctly",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/popup/__tests__/OffPlatformTimer.test.jsx::OffPlatformTimer::Timer Display Updates::updates display when timer state changes",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/popup/__tests__/OffPlatformTimer.test.jsx::OffPlatformTimer::Store Integration::handles timer stop correctly",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/popup/__tests__/OffPlatformTimer.test.jsx::OffPlatformTimer::Error Handling::handles missing chrome storage gracefully",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/popup/__tests__/OffPlatformTimer.test.jsx::OffPlatformTimer::Error Handling::handles chrome message errors gracefully",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/AddOffPlatformTime.test.tsx::AddOffPlatformTime Inline Editing::should show edit button on hover for recent entries",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/AddOffPlatformTime.test.tsx::AddOffPlatformTime Inline Editing::should enter inline edit mode when edit button is clicked",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/AddOffPlatformTime.test.tsx::AddOffPlatformTime Inline Editing::should save description changes when Enter is pressed",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/AddOffPlatformTime.test.tsx::AddOffPlatformTime Inline Editing::should cancel editing when Escape is pressed",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/AddOffPlatformTime.test.tsx::AddOffPlatformTime Inline Editing::should save changes when save button is clicked",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/AddOffPlatformTime.test.tsx::AddOffPlatformTime Inline Editing::should cancel editing when cancel button is clicked",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/AddOffPlatformTime.test.tsx::AddOffPlatformTime Inline Editing::should trim whitespace when saving description",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/AddOffPlatformTime.test.tsx::AddOffPlatformTime Inline Editing::should save off-platform entry with correct timestamp from selected date",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Basic Rendering::renders empty state when no entries provided",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Basic Rendering::renders table structure correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Basic Rendering::shows entries when passed valid data",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Basic Rendering::renders table with entries",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Basic Rendering::renders correct column headers",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Sorting::sorts by project name when header clicked",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Sorting::sorts by duration correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Column Filtering::shows column filters when showColumnFilters is true",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Global Search::filters entries based on global filter",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Pagination::displays pagination controls when entries exceed page size",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Pagination::navigates between pages",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Pagination::changes page size",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Inline Editing::displays editable project names",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Inline Editing::displays editable max times",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Row Actions::copies row data to clipboard",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Row Actions::shows delete button when onDeleteEntry is provided",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Row Actions::calls onDeleteEntry when delete button is clicked",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Special Entry Types::displays off-platform entries correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Special Entry Types::displays live entries with indicator",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Project Overrides::shows override indicator for projects with overrides",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.jsx::DashboardTable::Column Visibility::has all columns visible by default",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.tsx::DashboardTable Inline Editing::should show edit button on hover for audit entries",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.tsx::DashboardTable Inline Editing::should show edit button on hover for off-platform entries",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.tsx::DashboardTable Inline Editing::should enter edit mode when edit button is clicked for project name",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.tsx::DashboardTable Inline Editing::should cancel editing when Escape is pressed",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/DashboardTable.test.tsx::DashboardTable Inline Editing::should show cancel button only for the entry being edited",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::taskToDashboardEntry::should convert task to dashboard entry correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::taskToDashboardEntry::should handle task with minimal fields",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::offPlatformToDashboardEntry::should convert off-platform entry to dashboard entry correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::offPlatformToDashboardEntry::should handle zero duration correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::offPlatformToDashboardEntry::should calculate duration correctly for various inputs",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::activeAuditTimerToDashboardEntry::should convert active audit timer to dashboard entry",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::activeAuditTimerToDashboardEntry::should use current time if not provided",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::activeOffPlatformTimerToDashboardEntry::should convert active off-platform timer to dashboard entry",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::activeOffPlatformTimerToDashboardEntry::should handle zero elapsed time",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::activeOffPlatformTimerToDashboardEntry::should format activity type in description",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::formatActivityType::should format known activity types",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::formatActivityType::should format unknown activity types",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::formatActivityType::should handle empty or invalid input",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::activityTypeLabels::should contain all expected activity types",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::exportToCSV::should export entries to CSV with correct headers and data",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::exportToCSV::should handle off-platform entries correctly",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::exportToCSV::should trigger download with correct filename",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::exportToSimplifiedCSV::should export simplified CSV with only relevant fields",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::exportToSimplifiedCSV::should handle empty entries array",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::exportToMarkdown::should export to markdown with table format",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/dashboard/__tests__/dashboardUtils.test.js::dashboardUtils::exportToMarkdown::should handle missing values with dashes",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::ErrorBoundary::should render children when no error occurs",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::ErrorBoundary::should render fallback when error occurs",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::ErrorBoundary::should pass error info to fallback component",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::ErrorBoundary::should reset error state when resetError is called",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::ErrorBoundary::should catch errors in useEffect",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::DashboardErrorBoundary::should render children normally",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::DashboardErrorBoundary::should show dashboard error UI when error occurs",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::DashboardErrorBoundary::should display error details",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::DashboardErrorBoundary::should copy error details to clipboard",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::DashboardErrorBoundary::should navigate to dashboard on button click",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::PopupErrorBoundary::should render children normally",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::PopupErrorBoundary::should show popup-specific error UI",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::PopupErrorBoundary::should close window on button click",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::PopupErrorBoundary::should have constrained dimensions for popup",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::Error recovery flows::should recover from error when props change",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::Error recovery flows::should handle multiple sequential errors",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::Error recovery flows::should handle async errors",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::Error metadata collection::should include browser information in error details",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/shared/__tests__/ErrorBoundary.test.jsx::Error metadata collection::should include timestamp in error details",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Tasks Slice::adds a task",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Tasks Slice::updates a task",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Tasks Slice::deletes a task",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Tasks Slice::adds an off-platform entry",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Tasks Slice::deletes an off-platform entry",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Settings Slice::updates settings",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Settings Slice::adds a project override",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Settings Slice::updates an existing project override",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Settings Slice::deletes a project override",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Computed Values::calculates daily hours correctly",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Computed Values::calculates weekly hours correctly",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Computed Values::includes active timers in calculations",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Real-time Updates::starts real-time updates when active timers exist",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Real-time Updates::stops real-time updates when no active timers",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Real-time Updates::updates computed values every second during real-time updates",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Analytics Updates::starts analytics updates for active timers",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Analytics Updates::updates analytics timestamp every 30 seconds",
+      "status": "PASSED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Chrome Storage Sync::loads initial data from chrome storage",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Chrome Storage Sync::syncs changes to chrome storage",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Active Timers::updates active timers",
+      "status": "FAILED"
+    },
+    {
+      "name": "/Users/vlad/code/qc-audit-tracker/src/ui/store/__tests__/store.test.js::Zustand Store::Active Timers::clears specific active timer",
+      "status": "PASSED"
+    }
+  ]
+}
