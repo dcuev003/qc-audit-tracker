@@ -13,6 +13,18 @@ release
 dist-ssr
 *.local
 
+# Docker
+Dockerfile
+
+# Test artifacts
+coverage
+test-results
+playwright-report
+test-results.json
+
+# Patch files
+*.patch
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
