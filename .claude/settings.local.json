@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(pnpm test:*)",
+      "Bash(npm run test:unit:*)",
+      "Bash(pnpm run test:integration:*)",
+      "Bash(pnpm run test:performance:*)",
+      "Bash(pnpm run test:a11y:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm playwright:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(pnpm vitest run:*)",
+      "Bash(grep:*)",
+      "Bash(pnpm add:*)"
+    ],
+    "deny": []
+  }
+}
