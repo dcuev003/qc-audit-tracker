@@ -7,8 +7,12 @@ export default defineManifest({
 	description:
 		"QC Audit Tracker - Chrome extension for tracking your work during QC auditing on Outlier AI platform.",
 	version: pkg.version,
-	permissions: ["storage", "alarms", "tabs"],
-	host_permissions: ["https://app.outlier.ai/*"],
+  permissions: ["storage", "alarms", "tabs"],
+  host_permissions: [
+    "https://app.outlier.ai/*",
+    "https://script.google.com/*",
+    "https://script.googleusercontent.com/*"
+  ],
 	icons: {
 		"16": "public/icon16.png",
 		"48": "public/icon48.png",

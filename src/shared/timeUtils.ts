@@ -118,3 +118,73 @@ export function formatHoursDisplay(
 	}
 	return decimalHours.toFixed(1);
 }
+
+import { DatePreset } from "../shared/types/storage";
+
+/**
+ * Calculates the start and end dates for a given date preset.
+ * All calculations are done in UTC to ensure timezone consistency.
+ * @param preset - The date preset string (e.g., "today", "yesterday", "last-week").
+ * @returns An object containing the start and end dates.
+ */
+export function getDatePresetRange(
+	preset: DatePreset
+): { startDate: Date; endDate: Date } | null {
+	const now = new Date();
+	// Start of the current day in UTC
+	const todayUTC = new Date(
+		Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+	);
+
+	let startDate: Date, endDate: Date;
+
+	switch (preset) {
+		case "today":
+			startDate = todayUTC;
+			endDate = todayUTC;
+			break;
+		case "yesterday":
+			startDate = new Date(todayUTC);
+			startDate.setUTCDate(todayUTC.getUTCDate() - 1);
+			endDate = startDate;
+			break;
+		case "week": // This week (Mon-Sun, UTC)
+			startDate = new Date(todayUTC);
+			const dayOfWeek = todayUTC.getUTCDay(); // Sunday = 0, Monday = 1, ...
+			const diffToMonday = (dayOfWeek + 6) % 7;
+			startDate.setUTCDate(todayUTC.getUTCDate() - diffToMonday);
+			endDate = new Date(startDate);
+			endDate.setUTCDate(startDate.getUTCDate() + 6);
+			break;
+		case "last-week": // Last week (Mon-Sun, UTC)
+			startDate = new Date(todayUTC);
+			startDate.setUTCDate(todayUTC.getUTCDate() - 7);
+			const lastWeekDay = startDate.getUTCDay();
+			const lastWeekDiff = (lastWeekDay + 6) % 7;
+			startDate.setUTCDate(startDate.getUTCDate() - lastWeekDiff);
+			endDate = new Date(startDate);
+			endDate.setUTCDate(startDate.getUTCDate() + 6);
+			break;
+		case "month": // This month (UTC)
+			startDate = new Date(
+				Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)
+			);
+			endDate = new Date(
+				Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0)
+			);
+			break;
+		case "last-month": // Last month (UTC)
+			startDate = new Date(
+				Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1)
+			);
+			endDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 0));
+			break;
+		default:
+			return null;
+	}
+
+	// Set endDate to the end of the day (23:59:59.999) in UTC
+	endDate.setUTCHours(23, 59, 59, 999);
+
+	return { startDate, endDate };
+}

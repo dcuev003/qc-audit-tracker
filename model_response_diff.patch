@@ -1,0 +1,504 @@
+diff --git a/src/background/activeTimerManager.ts b/src/background/activeTimerManager.ts
+index fe2117d..569146f 100644
+--- a/src/background/activeTimerManager.ts
++++ b/src/background/activeTimerManager.ts
+@@ -9,7 +9,6 @@ import {
+ 	ActiveTimerState, 
+ 	ActiveAuditTimer, 
+ 	ActiveOffPlatformTimer,
+-	ACTIVE_TIMERS_STORAGE_KEY,
+ 	TIMER_UPDATE_ALARM
+ } from '@/shared/types/activeTimers';
+ import { 
+@@ -19,13 +18,16 @@ import {
+ 	ActiveTimerStoppedPayload 
+ } from '@/shared/types/messages';
+ import { createLogger } from '@/shared/logger';
++import { StorageManager } from './storage';
+ 
+ export class ActiveTimerManager {
+ 	private logger: ReturnType<typeof createLogger>;
+ 	private updateAlarmActive = false;
++	private storage: StorageManager;
+ 
+-	constructor() {
++	constructor(storage: StorageManager) {
+ 		this.logger = createLogger('ActiveTimerManager');
++		this.storage = storage;
+ 		this.setupAlarmListener();
+ 		this.initializeTimers();
+ 	}
+@@ -203,25 +205,14 @@ export class ActiveTimerManager {
+ 	 * Get current active timers
+ 	 */
+ 	async getActiveTimers(): Promise<ActiveTimerState> {
+-		return new Promise((resolve) => {
+-			chrome.storage.local.get([ACTIVE_TIMERS_STORAGE_KEY], (result) => {
+-				const defaultState: ActiveTimerState = {
+-					lastUpdated: Date.now()
+-				};
+-				resolve(result[ACTIVE_TIMERS_STORAGE_KEY] || defaultState);
+-			});
+-		});
++		return this.storage.getActiveTimers();
+ 	}
+ 
+ 	/**
+ 	 * Save active timers to storage
+ 	 */
+ 	private async saveActiveTimers(timers: ActiveTimerState): Promise<void> {
+-		return new Promise((resolve) => {
+-			chrome.storage.local.set({ [ACTIVE_TIMERS_STORAGE_KEY]: timers }, () => {
+-				resolve();
+-			});
+-		});
++		return this.storage.saveActiveTimers(timers);
+ 	}
+ 
+ 	/**
+diff --git a/src/background/index.ts b/src/background/index.ts
+index 5e5cd72..4edfeb1 100644
+--- a/src/background/index.ts
++++ b/src/background/index.ts
+@@ -20,7 +20,7 @@ class BackgroundService {
+   constructor() {
+     this.timer = new TimerManager();
+     this.storage = new StorageManager();
+-    this.activeTimerManager = new ActiveTimerManager();
++    this.activeTimerManager = new ActiveTimerManager(this.storage);
+     this.messages = new MessageHandler({
+       onStartTracking: this.startTracking.bind(this),
+       onStopTracking: this.stopTracking.bind(this),
+@@ -675,7 +675,8 @@ chrome.runtime.onInstalled.addListener((details) => {
+   
+   if (details.reason === 'install') {
+     // Set default settings on first install
+-    chrome.storage.local.set({
++    const storage = new StorageManager();
++    storage.updateSettings({
+       trackingEnabled: true,
+       qcDevLogging: false
+     });
+diff --git a/src/background/storage.ts b/src/background/storage.ts
+index 86bba48..f57adf6 100644
+--- a/src/background/storage.ts
++++ b/src/background/storage.ts
+@@ -5,12 +5,30 @@ import {
+   TimerState,
+   ExtensionSettings,
+ } from "../shared/types/storage";
++import { ActiveTimerState, ACTIVE_TIMERS_STORAGE_KEY } from "../shared/types/activeTimers";
+ import { STORAGE_KEYS } from "../shared/constants";
+ import { createLogger } from '@/shared/logger';
+ 
+ const logger = createLogger('Storage');
+ 
+ export class StorageManager {
++  async getActiveTimers(): Promise<ActiveTimerState> {
++    try {
++      const result = await chrome.storage.local.get(ACTIVE_TIMERS_STORAGE_KEY);
++      return result[ACTIVE_TIMERS_STORAGE_KEY] || { lastUpdated: Date.now() };
++    } catch (error) {
++      logger.error('Failed to get active timers', error);
++      return { lastUpdated: Date.now() };
++    }
++  }
++
++  async saveActiveTimers(timers: ActiveTimerState): Promise<void> {
++    try {
++      await chrome.storage.local.set({ [ACTIVE_TIMERS_STORAGE_KEY]: timers });
++    } catch (error) {
++      logger.error('Failed to save active timers', error);
++    }
++  }
+   async getState(): Promise<{
+     currentTask: Task | null;
+     timerRunning: boolean;
+diff --git a/src/ui/dashboard/Settings.tsx b/src/ui/dashboard/Settings.tsx
+index cdff471..345dd6e 100644
+--- a/src/ui/dashboard/Settings.tsx
++++ b/src/ui/dashboard/Settings.tsx
+@@ -25,6 +25,7 @@ import clsx from "clsx";
+ import pkg from "../../../package.json";
+ import { z } from "zod";
+ import { UserSettingsSchema } from "@/shared/validation";
++import { ChromeStorageSync } from "../store/chromeStorageSync";
+ 
+ // Toggle Switch Component
+ const ToggleSwitch: React.FC<{
+@@ -252,17 +253,16 @@ export default function Settings() {
+ 			}
+ 		}
+ 
++
+ 		// Check storage usage
+-		if (chrome?.storage?.local) {
+-			chrome.storage.local.getBytesInUse(null, (bytes) => {
+-				const mb = bytes / (1024 * 1024);
+-				if (mb > 4) {
+-					// Chrome local storage limit is 5MB
+-					score -= 15;
+-					issues.push("High storage usage");
+-				}
+-			});
+-		}
++		ChromeStorageSync.getInstance().getBytesInUse(null).then((bytes) => {
++			const mb = bytes / (1024 * 1024);
++			if (mb > 4) {
++				// Chrome local storage limit is 5MB
++				score -= 15;
++				issues.push("High storage usage");
++			}
++		}).catch(console.error);
+ 
+ 		return { score, issues };
+ 	};
+@@ -414,9 +414,7 @@ export default function Settings() {
+ 	const handleClearActiveTimers = async (): Promise<void> => {
+ 		try {
+ 			// Clear active timers from Chrome storage
+-			await chrome.storage.local.set({
+-				activeTimers: { lastUpdated: Date.now() },
+-			});
++			await ChromeStorageSync.getInstance().setActiveTimers({ lastUpdated: Date.now() });
+ 
+ 			// Force store to refresh by getting current state
+ 			// This will trigger a re-sync with Chrome storage
+diff --git a/src/ui/popup/OffPlatformTimer.tsx b/src/ui/popup/OffPlatformTimer.tsx
+index 9309f70..1a912d6 100644
+--- a/src/ui/popup/OffPlatformTimer.tsx
++++ b/src/ui/popup/OffPlatformTimer.tsx
+@@ -4,6 +4,7 @@ import { formatSecondsToHHMMSS } from "@/shared/timeUtils";
+ import { ChevronDown, Play, Pause, Square, Check, Edit3 } from "lucide-react";
+ import ConfirmModal from "./ConfirmModal";
+ import { MessageType } from "@/shared/types/messages";
++import { ChromeStorageSync } from "../store/chromeStorageSync";
+ 
+ const ACTIVITY_TYPES = [
+ 	{ value: "auditing", label: "Auditing" },
+@@ -79,17 +80,19 @@ const OffPlatformTimer: React.FC = () => {
+ 		}
+ 
+ 		// Fallback to old Chrome storage method for backwards compatibility
+-		chrome.storage.local.get(
+-			["offPlatformTimer", "offPlatformDescriptions"],
+-			(result) => {
+-				if (result.offPlatformTimer) {
++		const loadFallbackState = async () => {
++			try {
++				const result = await ChromeStorageSync.getInstance().getOffPlatformTimerState();
++				const { timer, descriptions } = result;
++
++				if (timer) {
+ 					const {
+ 						isRunning,
+ 						activity,
+ 						startTime,
+ 						elapsedSeconds,
+ 						description,
+-					} = result.offPlatformTimer;
++					} = timer;
+ 					if (isRunning && startTime) {
+ 						// Calculate elapsed time since last update
+ 						const now = Date.now();
+@@ -107,14 +110,20 @@ const OffPlatformTimer: React.FC = () => {
+ 				}
+ 
+ 				// Load saved descriptions
+-				if (result.offPlatformDescriptions) {
+-					setActivityDescriptions(result.offPlatformDescriptions);
+-					setDescription(
+-						result.offPlatformDescriptions[selectedActivity] || ""
+-					);
++				if (descriptions) {
++					setActivityDescriptions(descriptions);
++					if (timer && timer.activity) {
++						setDescription(descriptions[timer.activity] || "");
++					} else {
++						setDescription(descriptions[selectedActivity] || "");
++					}
+ 				}
++			} catch (error) {
++				console.error("Failed to load fallback state", error);
+ 			}
+-		);
++		};
++
++		loadFallbackState();
+ 	}, [activeTimers]);
+ 
+ 	// Update timer every second (only if not using active timer from store)
+@@ -166,15 +175,15 @@ const OffPlatformTimer: React.FC = () => {
+ 
+ 	// Save timer state to Chrome storage whenever it changes
+ 	useEffect(() => {
+-		chrome.storage.local.set({
+-			offPlatformTimer: {
++		ChromeStorageSync.getInstance().setOffPlatformTimerState({
++			timer: {
+ 				isRunning,
+ 				activity: selectedActivity,
+ 				startTime,
+ 				elapsedSeconds,
+ 				description,
+ 			},
+-			offPlatformDescriptions: activityDescriptions,
++			descriptions: activityDescriptions,
+ 		});
+ 	}, [
+ 		isRunning,
+@@ -388,7 +397,7 @@ const OffPlatformTimer: React.FC = () => {
+ 		setShowDescriptionSpace(false);
+ 
+ 		// Clear storage but keep descriptions
+-		chrome.storage.local.remove(["offPlatformTimer"]);
++		ChromeStorageSync.getInstance().removeOffPlatformTimerState(["offPlatformTimer"]);
+ 
+ 		// Don't auto-close the timer section when stopping
+ 		// User can manually hide it after stopping
+diff --git a/src/ui/store/chromeStorageSync.ts b/src/ui/store/chromeStorageSync.ts
+index a28a6a8..682812d 100644
+--- a/src/ui/store/chromeStorageSync.ts
++++ b/src/ui/store/chromeStorageSync.ts
+@@ -175,15 +175,41 @@ export class ChromeStorageSync {
+     console.log('[ChromeStorageSync] Cleared listeners but kept storage listener active');
+   }
+   
+-  static destroyInstance() {
+-    console.log('[ChromeStorageSync] Destroying singleton instance');
+-    if (ChromeStorageSync.instance?.storageListener) {
+-      chrome.storage.onChanged.removeListener(ChromeStorageSync.instance.storageListener);
++  static getInstance(): ChromeStorageSync {
++    if (!ChromeStorageSync.instance) {
++      new ChromeStorageSync();
+     }
+-    if (ChromeStorageSync.instance) {
+-      ChromeStorageSync.instance.listeners.clear();
+-      ChromeStorageSync.instance.initialized = false;
+-    }
+-    ChromeStorageSync.instance = undefined;
++    return ChromeStorageSync.instance!;
++  }
++
++  async setActiveTimers(state: ActiveTimerState): Promise<void> {
++    await chrome.storage.local.set({ [ACTIVE_TIMERS_STORAGE_KEY]: state });
++  }
++
++  async getOffPlatformTimerState(): Promise<any> {
++    const result = await chrome.storage.local.get(['offPlatformTimer', 'offPlatformDescriptions']);
++    return {
++      timer: result.offPlatformTimer,
++      descriptions: result.offPlatformDescriptions
++    };
++  }
++
++  async setOffPlatformTimerState(state: { timer?: any, descriptions?: any }): Promise<void> {
++    const updates: any = {};
++    if (state.timer !== undefined) updates.offPlatformTimer = state.timer;
++    if (state.descriptions !== undefined) updates.offPlatformDescriptions = state.descriptions;
++    await chrome.storage.local.set(updates);
++  }
++  
++  async removeOffPlatformTimerState(keys: string[]): Promise<void> {
++    await chrome.storage.local.remove(keys);
++  }
++
++  async getBytesInUse(keys: string | string[] | null): Promise<number> {
++    return new Promise((resolve) => {
++      chrome.storage.local.getBytesInUse(keys, (bytes) => {
++        resolve(bytes);
++      });
++    });
+   }
+ }
+diff --git a/src/ui/store/slices/settingsSlice.ts b/src/ui/store/slices/settingsSlice.ts
+index 696fcd2..256bb35 100644
+--- a/src/ui/store/slices/settingsSlice.ts
++++ b/src/ui/store/slices/settingsSlice.ts
+@@ -1,6 +1,7 @@
+ import { StateCreator } from 'zustand';
+ import { AppStore, UserSettings } from '../types';
+ import { createLogger } from '@/shared/logger';
++import { ChromeStorageSync } from '../chromeStorageSync';
+ 
+ const logger = createLogger('SettingsSlice');
+ 
+@@ -37,19 +38,7 @@ export const createSettingsSlice: StateCreator<
+       set({ settings: newSettings });
+ 
+       // Sync all settings with Chrome storage
+-      await chrome.storage.local.set({
+-        qcDevLogging: newSettings.qcDevLogging,
+-        trackingEnabled: newSettings.trackingEnabled,
+-        dailyOvertimeEnabled: newSettings.dailyOvertimeEnabled,
+-        dailyOvertimeThreshold: newSettings.dailyOvertimeThreshold,
+-        dailyHoursTarget: newSettings.dailyHoursTarget,
+-        weeklyOvertimeEnabled: newSettings.weeklyOvertimeEnabled,
+-        weeklyOvertimeThreshold: newSettings.weeklyOvertimeThreshold,
+-        hourlyRate: newSettings.hourlyRate,
+-        overtimeRate: newSettings.overtimeRate,
+-        timezone: newSettings.timezone,
+-        email: newSettings.email,
+-      });
++      await ChromeStorageSync.getInstance().setSettings(newSettings);
+ 
+       logger.info('Settings updated', newSettings);
+     } catch (error) {
+diff --git a/src/ui/store/slices/tasksSlice.ts b/src/ui/store/slices/tasksSlice.ts
+index 30752c8..01d5f1d 100644
+--- a/src/ui/store/slices/tasksSlice.ts
++++ b/src/ui/store/slices/tasksSlice.ts
+@@ -2,7 +2,7 @@ import { StateCreator } from 'zustand';
+ import { AppStore } from '../types';
+ import { Task, OffPlatformTimeEntry, ProjectOverride } from '@/shared/types/storage';
+ import { createLogger } from '@/shared/logger';
+-import { STORAGE_KEYS } from '@/shared/constants';
++import { ChromeStorageSync } from '../chromeStorageSync';
+ 
+ const logger = createLogger('TasksSlice');
+ 
+@@ -36,28 +36,22 @@ export const createTasksSlice: StateCreator<
+ 
+   loadTasks: async () => {
+     try {
+-      const result = await chrome.storage.local.get([
+-        STORAGE_KEYS.COMPLETED_TASKS,
+-        STORAGE_KEYS.OFF_PLATFORM_TIME,
+-        STORAGE_KEYS.PROJECT_OVERRIDES,
+-        STORAGE_KEYS.PROJECT_NAME_MAP,
++      const storage = ChromeStorageSync.getInstance();
++      const [tasks, offPlatformEntries, projectOverrides, projectNameMap] = await Promise.all([
++        storage.getTasks(),
++        storage.getOffPlatformEntries(),
++        storage.getProjectOverrides(),
++        storage.getProjectNameMap()
+       ]);
+       
+       // Filter tasks to get only last month's data
+       const oneMonthAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+-      const projectNameMap: Record<string, string> = result[STORAGE_KEYS.PROJECT_NAME_MAP] || {};
+-      const rawTasks: Task[] = result[STORAGE_KEYS.COMPLETED_TASKS] || [];
+-      const rawOffPlatform: OffPlatformTimeEntry[] = result[STORAGE_KEYS.OFF_PLATFORM_TIME] || [];
+-      const overridesSource = result[STORAGE_KEYS.PROJECT_OVERRIDES] || [];
+-      const overridesArray: ProjectOverride[] = Array.isArray(overridesSource)
+-        ? overridesSource
+-        : Object.values(overridesSource);
+-
+-      const tasks = rawTasks.filter((task: Task) => 
++      
++      const filteredTasks = tasks.filter((task: Task) => 
+         task.startTime >= oneMonthAgo
+       );
+ 
+-      const enrichedTasks = tasks.map((task: Task) => {
++      const enrichedTasks = filteredTasks.map((task: Task) => {
+         if (task.projectId && !task.projectName) {
+           const mapped = projectNameMap[task.projectId];
+           if (mapped) {
+@@ -69,8 +63,8 @@ export const createTasksSlice: StateCreator<
+       
+       set({
+         tasks: enrichedTasks,
+-        offPlatformEntries: rawOffPlatform,
+-        projectOverrides: overridesArray,
++        offPlatformEntries,
++        projectOverrides,
+       });
+       
+       // Update computed values after loading data
+@@ -78,8 +72,8 @@ export const createTasksSlice: StateCreator<
+       
+       logger.info('Tasks loaded', { 
+         tasksCount: enrichedTasks.length,
+-        offPlatformCount: rawOffPlatform.length,
+-        overridesCount: overridesArray.length,
++        offPlatformCount: offPlatformEntries.length,
++        overridesCount: projectOverrides.length,
+       });
+     } catch (error) {
+       logger.error('Failed to load tasks', error);
+@@ -91,7 +85,7 @@ export const createTasksSlice: StateCreator<
+     try {
+       const tasks = [...get().tasks, task];
+       set({ tasks });
+-      await chrome.storage.local.set({ completedTasks: tasks });
++      await ChromeStorageSync.getInstance().setTasks(tasks);
+       
+       // Update computed values after adding task
+       get().updateComputedValues();
+@@ -109,7 +103,7 @@ export const createTasksSlice: StateCreator<
+         task.qaOperationId === qaOperationId ? { ...task, ...updates } : task
+       );
+       set({ tasks });
+-      await chrome.storage.local.set({ completedTasks: tasks });
++      await ChromeStorageSync.getInstance().setTasks(tasks);
+       
+       // Update computed values after updating task
+       get().updateComputedValues();
+@@ -125,7 +119,7 @@ export const createTasksSlice: StateCreator<
+     try {
+       const tasks = get().tasks.filter(task => task.qaOperationId !== qaOperationId);
+       set({ tasks });
+-      await chrome.storage.local.set({ completedTasks: tasks });
++      await ChromeStorageSync.getInstance().setTasks(tasks);
+       
+       // Update computed values after deleting task
+       get().updateComputedValues();
+@@ -141,7 +135,7 @@ export const createTasksSlice: StateCreator<
+     try {
+       const entries = [...get().offPlatformEntries, entry];
+       set({ offPlatformEntries: entries });
+-      await chrome.storage.local.set({ offPlatformTime: entries });
++      await ChromeStorageSync.getInstance().setOffPlatformEntries(entries);
+       
+       // Update computed values after adding off-platform entry
+       get().updateComputedValues();
+@@ -159,7 +153,7 @@ export const createTasksSlice: StateCreator<
+         entry.id === id ? { ...entry, ...updates } : entry
+       );
+       set({ offPlatformEntries: entries });
+-      await chrome.storage.local.set({ offPlatformTime: entries });
++      await ChromeStorageSync.getInstance().setOffPlatformEntries(entries);
+       
+       // Update computed values after updating off-platform entry
+       get().updateComputedValues();
+@@ -175,7 +169,7 @@ export const createTasksSlice: StateCreator<
+     try {
+       const entries = get().offPlatformEntries.filter(entry => entry.id !== id);
+       set({ offPlatformEntries: entries });
+-      await chrome.storage.local.set({ offPlatformTime: entries });
++      await ChromeStorageSync.getInstance().setOffPlatformEntries(entries);
+       
+       // Update computed values after deleting off-platform entry
+       get().updateComputedValues();
+@@ -201,7 +195,7 @@ export const createTasksSlice: StateCreator<
+       }
+       
+       set({ projectOverrides: newOverrides });
+-      await chrome.storage.local.set({ projectOverrides: newOverrides });
++      await ChromeStorageSync.getInstance().setProjectOverrides(newOverrides);
+       logger.info('Project override updated', override);
+     } catch (error) {
+       logger.error('Failed to update project override', error);
+@@ -213,7 +207,7 @@ export const createTasksSlice: StateCreator<
+     try {
+       const overrides = get().projectOverrides.filter(o => o.projectId !== projectId);
+       set({ projectOverrides: overrides });
+-      await chrome.storage.local.set({ projectOverrides: overrides });
++      await ChromeStorageSync.getInstance().setProjectOverrides(overrides);
+       logger.info('Project override deleted', projectId);
+     } catch (error) {
+       logger.error('Failed to delete project override', error);
+diff --git a/src/ui/store/store.ts b/src/ui/store/store.ts
+index e98134d..ba9cced 100644
+--- a/src/ui/store/store.ts
++++ b/src/ui/store/store.ts
+@@ -124,7 +124,7 @@ export const useStore = create<AppStore>()(
+         // Save to Chrome storage to notify all contexts
+         try {
+           console.log('[Store] Saving to Chrome storage...');
+-          await chrome.storage.local.set({ [ACTIVE_TIMERS_STORAGE_KEY]: activeTimers });
++          await ChromeStorageSync.getInstance().setActiveTimers(activeTimers);
+           console.log('[Store] Successfully saved to Chrome storage');
+         } catch (error) {
+           console.error('[Store] Failed to save to Chrome storage:', error);

@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { AppStore, useStore } from "@/ui/store";
 import { formatSecondsToHHMMSS } from "@/shared/timeUtils";
-import { ChevronDown, Play, Pause, Square } from "lucide-react";
+import { ChevronDown, Play, Pause, Square, Check, Edit3 } from "lucide-react";
 import ConfirmModal from "./ConfirmModal";
 import { MessageType } from "@/shared/types/messages";
-
-interface OffPlatformTimerProps {
-	// No props needed - timer manages its own state
-}
+import { ChromeStorageSync } from "../store/chromeStorageSync";
 
 const ACTIVITY_TYPES = [
 	{ value: "auditing", label: "Auditing" },
@@ -19,7 +16,7 @@ const ACTIVITY_TYPES = [
 
 type ActivityType = (typeof ACTIVITY_TYPES)[number]["value"];
 
-const OffPlatformTimer: React.FC<OffPlatformTimerProps> = () => {
+const OffPlatformTimer: React.FC = () => {
 	const [isRunning, setIsRunning] = useState(false);
 	const [selectedActivity, setSelectedActivity] =
 		useState<ActivityType>("auditing");
@@ -31,6 +28,23 @@ const OffPlatformTimer: React.FC<OffPlatformTimerProps> = () => {
 	);
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
 	const [showStopConfirm, setShowStopConfirm] = useState(false);
+
+	// New states for description feature
+	const [description, setDescription] = useState("");
+	const [isEditingDescription, setIsEditingDescription] = useState(false);
+	const [descriptionInput, setDescriptionInput] = useState("");
+	const [activityDescriptions, setActivityDescriptions] = useState<
+		Record<ActivityType, string>
+	>({
+		auditing: "",
+		self_onboarding: "",
+		validation: "",
+		onboarding_oh: "",
+		other: "",
+	});
+	const [showDescriptionSpace, setShowDescriptionSpace] = useState(true);
+
+	const descriptionInputRef = useRef<HTMLInputElement>(null);
 
 	const addOffPlatformEntry = useStore(
 		(state: AppStore) => state.addOffPlatformEntry
@@ -53,28 +67,63 @@ const OffPlatformTimer: React.FC<OffPlatformTimerProps> = () => {
 			setSelectedActivity(timer.activityType as ActivityType);
 			setElapsedSeconds(totalElapsed);
 			setStartTime(timer.startTime);
+
+			// Load description for active timer
+			if ((timer as any).description) {
+				setDescription((timer as any).description);
+				setActivityDescriptions((prev) => ({
+					...prev,
+					[timer.activityType]: (timer as any).description,
+				}));
+			}
 			return;
 		}
 
 		// Fallback to old Chrome storage method for backwards compatibility
-		chrome.storage.local.get(["offPlatformTimer"], (result) => {
-			if (result.offPlatformTimer) {
-				const { isRunning, activity, startTime, elapsedSeconds } =
-					result.offPlatformTimer;
-				if (isRunning && startTime) {
-					// Calculate elapsed time since last update
-					const now = Date.now();
-					const additionalSeconds = Math.floor((now - startTime) / 1000);
-					setElapsedSeconds(elapsedSeconds + additionalSeconds);
-					setStartTime(now);
-					setIsRunning(true);
-					setSelectedActivity(activity);
-				} else {
-					setElapsedSeconds(elapsedSeconds || 0);
-					setSelectedActivity(activity || "auditing");
+		const loadFallbackState = async () => {
+			try {
+				const result = await ChromeStorageSync.getInstance().getOffPlatformTimerState();
+				const { timer, descriptions } = result;
+
+				if (timer) {
+					const {
+						isRunning,
+						activity,
+						startTime,
+						elapsedSeconds,
+						description,
+					} = timer;
+					if (isRunning && startTime) {
+						// Calculate elapsed time since last update
+						const now = Date.now();
+						const additionalSeconds = Math.floor((now - startTime) / 1000);
+						setElapsedSeconds(elapsedSeconds + additionalSeconds);
+						setStartTime(now);
+						setIsRunning(true);
+						setSelectedActivity(activity);
+						setDescription(description || "");
+					} else {
+						setElapsedSeconds(elapsedSeconds || 0);
+						setSelectedActivity(activity || "auditing");
+						setDescription(description || "");
+					}
 				}
+
+				// Load saved descriptions
+				if (descriptions) {
+					setActivityDescriptions(descriptions);
+					if (timer && timer.activity) {
+						setDescription(descriptions[timer.activity] || "");
+					} else {
+						setDescription(descriptions[selectedActivity] || "");
+					}
+				}
+			} catch (error) {
+				console.error("Failed to load fallback state", error);
 			}
-		});
+		};
+
+		loadFallbackState();
 	}, [activeTimers]);
 
 	// Update timer every second (only if not using active timer from store)
@@ -126,15 +175,61 @@ const OffPlatformTimer: React.FC<OffPlatformTimerProps> = () => {
 
 	// Save timer state to Chrome storage whenever it changes
 	useEffect(() => {
-		chrome.storage.local.set({
-			offPlatformTimer: {
+		ChromeStorageSync.getInstance().setOffPlatformTimerState({
+			timer: {
 				isRunning,
 				activity: selectedActivity,
 				startTime,
 				elapsedSeconds,
+				description,
 			},
+			descriptions: activityDescriptions,
 		});
-	}, [isRunning, selectedActivity, startTime, elapsedSeconds]);
+	}, [
+		isRunning,
+		selectedActivity,
+		startTime,
+		elapsedSeconds,
+		description,
+		activityDescriptions,
+	]);
+
+	// Auto-focus description input when editing starts
+	useEffect(() => {
+		if (isEditingDescription && descriptionInputRef.current) {
+			descriptionInputRef.current.focus();
+			descriptionInputRef.current.select();
+		}
+	}, [isEditingDescription]);
+
+	const handleSaveDescription = () => {
+		setDescription(descriptionInput);
+		setActivityDescriptions((prev) => ({
+			...prev,
+			[selectedActivity]: descriptionInput,
+		}));
+		setIsEditingDescription(false);
+	};
+
+	const handleEditDescription = () => {
+		setDescriptionInput(description);
+		setIsEditingDescription(true);
+	};
+
+	const handleCancelDescription = () => {
+		setDescriptionInput(description);
+		setIsEditingDescription(false);
+	};
+
+	const handleDescriptionKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter") {
+			e.preventDefault();
+			handleSaveDescription();
+		} else if (e.key === "Escape") {
+			e.preventDefault();
+			handleCancelDescription();
+		}
+	};
 
 	const handleStart = async () => {
 		const now = Date.now();
@@ -151,34 +246,36 @@ const OffPlatformTimer: React.FC<OffPlatformTimerProps> = () => {
 					id: timerId,
 					activityType: selectedActivity,
 					elapsedSeconds: elapsedSeconds,
+					description: description,
 				},
 				timestamp: now,
 				source: "popup" as const,
 			});
 
 			console.log("Started active timer:", { timerId, response });
-			
+
 			// Immediately update the store with the new active timer
 			// This ensures the dashboard updates immediately without waiting for Chrome storage sync
-			console.log('[Popup] About to update store with new timer:', {
+			console.log("[Popup] About to update store with new timer:", {
 				timerId,
 				activityType: selectedActivity,
-				elapsedSeconds
+				elapsedSeconds,
 			});
-			
+
 			await updateActiveTimers({
 				activeOffPlatform: {
 					id: timerId,
 					activityType: selectedActivity,
 					startTime: now,
 					elapsedSeconds: elapsedSeconds,
-					status: 'in-progress',
-					type: 'off_platform'
-				},
-				lastUpdated: now
+					status: "in-progress",
+					type: "off_platform",
+					description: description,
+				} as any,
+				lastUpdated: now,
 			});
-			
-			console.log('[Popup] Store update completed for timer start');
+
+			console.log("[Popup] Store update completed for timer start");
 		} catch (error) {
 			console.error("Failed to start active timer:", error);
 			// Revert local state if background call failed
@@ -202,10 +299,10 @@ const OffPlatformTimer: React.FC<OffPlatformTimerProps> = () => {
 					timestamp: Date.now(),
 					source: "popup" as const,
 				});
-				
+
 				// Immediately update the store to remove the active timer
-				await updateActiveTimers({ 
-					lastUpdated: Date.now() 
+				await updateActiveTimers({
+					lastUpdated: Date.now(),
 				});
 			} catch (error) {
 				console.error("Failed to pause active timer:", error);
@@ -247,13 +344,13 @@ const OffPlatformTimer: React.FC<OffPlatformTimerProps> = () => {
 
 				// Immediately update the store to remove the active timer
 				// This ensures the dashboard updates immediately without waiting for Chrome storage sync
-				console.log('[Popup] About to update store to clear timer');
-				
+				console.log("[Popup] About to update store to clear timer");
+
 				await updateActiveTimers({
 					lastUpdated: Date.now(),
 				});
-				
-				console.log('[Popup] Store update completed for timer stop');
+
+				console.log("[Popup] Store update completed for timer stop");
 			} catch (error) {
 				console.error("Failed to stop active timer:", error);
 			}
@@ -266,6 +363,14 @@ const OffPlatformTimer: React.FC<OffPlatformTimerProps> = () => {
 			const hours = Math.floor(elapsedSeconds / 3600);
 			const minutes = Math.floor((elapsedSeconds % 3600) / 60);
 
+			// Use custom description or generate default
+			const finalDescription =
+				description.trim() ||
+				`Quick tracked ${
+					ACTIVITY_TYPES.find((a) => a.value === selectedActivity)?.label ||
+					selectedActivity
+				}`;
+
 			await addOffPlatformEntry({
 				id: `quick-${Date.now()}-${Math.random()
 					.toString(36)
@@ -274,10 +379,7 @@ const OffPlatformTimer: React.FC<OffPlatformTimerProps> = () => {
 				hours,
 				minutes,
 				date: new Date().toISOString().split("T")[0],
-				description: `Quick tracked ${
-					ACTIVITY_TYPES.find((a) => a.value === selectedActivity)?.label ||
-					selectedActivity
-				}`,
+				description: finalDescription,
 				timestamp: Date.now(),
 			});
 		}
@@ -288,8 +390,14 @@ const OffPlatformTimer: React.FC<OffPlatformTimerProps> = () => {
 		setStartTime(null);
 		setShowStopConfirm(false);
 
-		// Clear storage
-		chrome.storage.local.remove(["offPlatformTimer"]);
+		// Clear description states but preserve saved descriptions
+		setDescription("");
+		setDescriptionInput("");
+		setIsEditingDescription(false);
+		setShowDescriptionSpace(false);
+
+		// Clear storage but keep descriptions
+		ChromeStorageSync.getInstance().removeOffPlatformTimerState(["offPlatformTimer"]);
 
 		// Don't auto-close the timer section when stopping
 		// User can manually hide it after stopping
@@ -302,9 +410,23 @@ const OffPlatformTimer: React.FC<OffPlatformTimerProps> = () => {
 			setShowConfirmModal(true);
 			setShowActivityMenu(false);
 		} else {
+			// Save current description for current activity
+			setActivityDescriptions((prev) => ({
+				...prev,
+				[selectedActivity]: description,
+			}));
+
 			// No timer running, just switch
 			setSelectedActivity(activity);
+			setDescription(activityDescriptions[activity] || "");
+			setDescriptionInput(activityDescriptions[activity] || "");
 			setShowActivityMenu(false);
+			setShowDescriptionSpace(true); // Keep description space open
+
+			// Auto-edit description if it's empty
+			if (!activityDescriptions[activity]) {
+				setIsEditingDescription(true);
+			}
 		}
 	};
 
@@ -335,6 +457,14 @@ const OffPlatformTimer: React.FC<OffPlatformTimerProps> = () => {
 			const hours = Math.floor(elapsedSeconds / 3600);
 			const minutes = Math.floor((elapsedSeconds % 3600) / 60);
 
+			// Use custom description or generate default
+			const finalDescription =
+				description.trim() ||
+				`Quick tracked ${
+					ACTIVITY_TYPES.find((a) => a.value === selectedActivity)?.label ||
+					selectedActivity
+				}`;
+
 			await addOffPlatformEntry({
 				id: `quick-${Date.now()}-${Math.random()
 					.toString(36)
@@ -343,18 +473,32 @@ const OffPlatformTimer: React.FC<OffPlatformTimerProps> = () => {
 				hours,
 				minutes,
 				date: new Date().toISOString().split("T")[0],
-				description: `Quick tracked ${
-					ACTIVITY_TYPES.find((a) => a.value === selectedActivity)?.label ||
-					selectedActivity
-				}`,
+				description: finalDescription,
 				timestamp: Date.now(),
 			});
+
+			// Save current description for previous activity
+			setActivityDescriptions((prev) => ({
+				...prev,
+				[selectedActivity]: description,
+			}));
 
 			// Reset timer for new activity
 			setElapsedSeconds(0);
 			const now = Date.now();
 			setStartTime(now);
 			setSelectedActivity(pendingActivity);
+
+			// Load description for new activity
+			const newDescription = activityDescriptions[pendingActivity] || "";
+			setDescription(newDescription);
+			setDescriptionInput(newDescription);
+			setShowDescriptionSpace(true);
+
+			// Auto-edit if no description
+			if (!newDescription) {
+				setIsEditingDescription(true);
+			}
 
 			// Start new active timer
 			try {
@@ -364,11 +508,12 @@ const OffPlatformTimer: React.FC<OffPlatformTimerProps> = () => {
 						id: `popup-timer-${now}`,
 						activityType: pendingActivity,
 						elapsedSeconds: 0,
+						description: newDescription,
 					},
 					timestamp: now,
 					source: "popup" as const,
 				});
-				
+
 				// Immediately update the store with the new active timer
 				await updateActiveTimers({
 					activeOffPlatform: {
@@ -376,10 +521,11 @@ const OffPlatformTimer: React.FC<OffPlatformTimerProps> = () => {
 						activityType: pendingActivity,
 						startTime: now,
 						elapsedSeconds: 0,
-						status: 'in-progress',
-						type: 'off_platform'
-					},
-					lastUpdated: now
+						status: "in-progress",
+						type: "off_platform",
+						description: newDescription,
+					} as any,
+					lastUpdated: now,
 				});
 			} catch (error) {
 				console.error("Failed to start new active timer:", error);
@@ -412,23 +558,80 @@ const OffPlatformTimer: React.FC<OffPlatformTimerProps> = () => {
 			<div className='mb-3'>
 				<div className='relative'>
 					<button
-						onClick={() => setShowActivityMenu(!showActivityMenu)}
+						onClick={() => {
+							setShowActivityMenu(!showActivityMenu);
+							setShowDescriptionSpace(!showActivityMenu);
+						}}
 						className='w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg flex items-center justify-between hover:bg-gray-50 transition-colors'>
 						<span>{currentActivityLabel}</span>
-						<ChevronDown className='h-4 w-4 text-gray-500' />
+						<ChevronDown
+							className={`h-4 w-4 text-gray-500 transition-transform ${
+								showActivityMenu ? "rotate-180" : ""
+							}`}
+						/>
 					</button>
 
 					{showActivityMenu && (
-						<div className='relative top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50'>
+						<div className='mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50'>
 							{ACTIVITY_TYPES.filter((a) => a.value !== selectedActivity).map(
 								(activity) => (
 									<button
 										key={activity.value}
 										onClick={() => handleActivityChange(activity.value)}
-										className='w-full px-3 py-2 text-sm text-left hover:bg-gray-50 transition-colors first:rounded-t-lg last:rounded-b-lg border-b border-1 border-gray-200'>
+										className='w-full px-3 py-2 text-sm text-left hover:bg-gray-50 transition-colors first:rounded-t-lg last:rounded-b-lg border-b last:border-b-0 border-gray-200'>
 										{activity.label}
 									</button>
 								)
+							)}
+						</div>
+					)}
+
+					{/* Description Input Area */}
+					{showDescriptionSpace && !showActivityMenu && (
+						<div className='mt-1 bg-white border border-gray-200 rounded-lg p-3'>
+							{isEditingDescription ? (
+								<div className='space-y-2'>
+									<input
+										ref={descriptionInputRef}
+										type='text'
+										value={descriptionInput}
+										onChange={(e) => setDescriptionInput(e.target.value)}
+										onKeyDown={handleDescriptionKeyDown}
+										placeholder='Add a description...'
+										className='w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500'
+									/>
+									<div className='flex gap-2'>
+										<button
+											onClick={handleSaveDescription}
+											className='flex-1 px-2 py-1 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors flex items-center justify-center gap-1'>
+											<Check className='h-3 w-3' />
+											Save
+										</button>
+										<button
+											onClick={handleCancelDescription}
+											className='px-2 py-1 text-xs bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors'>
+											Cancel
+										</button>
+									</div>
+								</div>
+							) : (
+								<div
+									onClick={handleEditDescription}
+									className='cursor-pointer hover:bg-gray-50 rounded p-1 transition-colors'>
+									{description ? (
+										<div className='flex items-start gap-2'>
+											<p className='text-sm text-gray-700 flex-1'>
+												{description}
+											</p>
+											<Edit3 className='h-3 w-3 text-gray-400 mt-0.5' />
+										</div>
+									) : (
+										<div className='flex items-center gap-2 text-sm text-gray-400'>
+											<Edit3 className='h-3 w-3' />
+											<span>Add a description...</span>
+										</div>
+									)}
+								</div>
 							)}
 						</div>
 					)}

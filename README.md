@@ -109,6 +109,8 @@ qc-audit-tracker/
 
 ## Installation
 
+### Local Installation
+
 1. Clone the repository:
 ```bash
 git clone https://github.com/your-username/qc-audit-tracker.git
@@ -130,6 +132,30 @@ pnpm build
    - Enable "Developer mode"
    - Click "Load unpacked"
    - Select the `dist/` directory
+
+### Docker Installation
+
+For a containerized development environment with all dependencies pre-installed:
+
+```bash
+# Build the Docker image
+docker build -t qc-audit-tracker .
+
+# Run interactive shell
+docker run -it qc-audit-tracker
+
+# Or use docker-compose
+docker-compose up -d
+docker-compose exec app sh
+```
+
+Inside the container, you can:
+```bash
+pnpm build        # Build the extension
+pnpm test:run     # Run unit tests
+pnpm typecheck    # Check TypeScript types
+pnpm dev          # Start dev server
+```
 
 ## Development
 

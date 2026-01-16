@@ -1,0 +1,302 @@
+import { test, expect } from './fixtures/extension-test.js';
+import { 
+  waitForExtensionReady, 
+  clearExtensionData 
+} from './fixtures/extension-test.js';
+import { 
+  createMockOffPlatformEntry
+} from './helpers/test-data.js';
+
+test.describe('Add Off-Platform Time Page', () => {
+  test.beforeEach(async ({ extensionPage, mockStorage, extensionId, extensionUrls }) => {
+    const { page } = extensionPage;
+    await clearExtensionData(page, extensionId);
+    
+    // Set up default data
+    await mockStorage.set({
+      userSettings: {
+        trackingEnabled: true,
+        hourlyRate: 25
+      },
+      offPlatformEntries: [],
+      tasks: []
+    });
+    
+    // Navigate to add off-platform time page
+    await page.goto(extensionUrls.dashboard);
+    await waitForExtensionReady(page);
+    
+    // Click on Add Off Platform Time tab
+    await page.getByRole('tab', { name: 'Add Off Platform Time' }).click();
+    await page.waitForSelector('h2:has-text("Log Off-Platform Time")');
+  });
+
+  test('displays form UI correctly', async ({ extensionPage }) => {
+    const { page } = extensionPage;
+    
+    // Check header
+    await expect(page.locator('h1')).toContainText('QC Audit Tracker');
+    
+    // Check tab is active
+    await expect(page.getByRole('tab', { name: 'Add Off Platform Time' })).toHaveAttribute('aria-selected', 'true');
+    
+    // Check form title
+    await expect(page.locator('h2')).toContainText('Log Off-Platform Time');
+    
+    // Check activity type options
+    await expect(page.locator('text=Auditing')).toBeVisible();
+    await expect(page.locator('text=Self Onboarding')).toBeVisible();
+    await expect(page.locator('text=Validation')).toBeVisible();
+    await expect(page.locator('text=Onboarding/OH')).toBeVisible();
+    await expect(page.locator('text=Other')).toBeVisible();
+    
+    // Check time inputs
+    await expect(page.locator('input[name="hours"]')).toBeVisible();
+    await expect(page.locator('input[name="minutes"]')).toBeVisible();
+    
+    // Check date input
+    await expect(page.locator('input[type="date"]')).toBeVisible();
+    
+    // Check description textarea
+    await expect(page.locator('textarea[name="description"]')).toBeVisible();
+    
+    // Check buttons
+    await expect(page.locator('button:has-text("Clear Form")')).toBeVisible();
+    await expect(page.locator('button:has-text("Log Time Entry")')).toBeVisible();
+  });
+
+  test('selects different activity types', async ({ extensionPage }) => {
+    const { page } = extensionPage;
+    
+    // Default should be Auditing
+    const auditingRadio = page.locator('input[type="radio"][value="auditing"]');
+    await expect(auditingRadio).toBeChecked();
+    
+    // Click on Validation
+    await page.locator('text=Validation').click();
+    
+    // Check Validation is selected
+    const validationRadio = page.locator('input[type="radio"][value="validation"]');
+    await expect(validationRadio).toBeChecked();
+    await expect(auditingRadio).not.toBeChecked();
+  });
+
+  test('fills and submits time entry form', async ({ extensionPage, mockStorage }) => {
+    const { page } = extensionPage;
+    
+    // Select activity type
+    await page.locator('text=Self Onboarding').click();
+    
+    // Fill time
+    await page.locator('input[name="hours"]').fill('2');
+    await page.locator('input[name="minutes"]').fill('30');
+    
+    // Fill date (yesterday)
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const dateStr = yesterday.toISOString().split('T')[0];
+    await page.locator('input[type="date"]').fill(dateStr);
+    
+    // Fill description
+    await page.locator('textarea[name="description"]').fill('Completed onboarding modules');
+    
+    // Submit form
+    await page.locator('button:has-text("Log Time Entry")').click();
+    
+    // Check success message
+    await expect(page.locator('text=Time Logged Successfully!')).toBeVisible();
+    
+    // Wait for form to reset
+    await page.waitForTimeout(2500);
+    
+    // Check form is reset
+    await expect(page.locator('input[name="hours"]')).toHaveValue('0');
+    await expect(page.locator('input[name="minutes"]')).toHaveValue('0');
+    await expect(page.locator('textarea[name="description"]')).toHaveValue('');
+    
+    // Verify entry was saved
+    const data = await mockStorage.get('offPlatformEntries');
+    expect(data.offPlatformEntries).toHaveLength(1);
+    expect(data.offPlatformEntries[0].type).toBe('self_onboarding');
+    expect(data.offPlatformEntries[0].hours).toBe(2);
+    expect(data.offPlatformEntries[0].minutes).toBe(30);
+  });
+
+  test('validates time input', async ({ extensionPage }) => {
+    const { page } = extensionPage;
+    
+    // Log Time Entry button should be disabled with 0 hours and 0 minutes
+    const submitButton = page.locator('button:has-text("Log Time Entry")');
+    await expect(submitButton).toBeDisabled();
+    
+    // Enter only hours
+    await page.locator('input[name="hours"]').fill('1');
+    await expect(submitButton).toBeEnabled();
+    
+    // Reset and enter only minutes
+    await page.locator('input[name="hours"]').fill('0');
+    await page.locator('input[name="minutes"]').fill('15');
+    await expect(submitButton).toBeEnabled();
+  });
+
+  test('clears form when Clear Form is clicked', async ({ extensionPage }) => {
+    const { page } = extensionPage;
+    
+    // Fill form with data
+    await page.locator('text=Other').click();
+    await page.locator('input[name="hours"]').fill('3');
+    await page.locator('input[name="minutes"]').fill('45');
+    await page.locator('textarea[name="description"]').fill('Test description');
+    
+    // Click Clear Form
+    await page.locator('button:has-text("Clear Form")').click();
+    
+    // Check form is cleared
+    await expect(page.locator('input[type="radio"][value="auditing"]')).toBeChecked();
+    await expect(page.locator('input[name="hours"]')).toHaveValue('0');
+    await expect(page.locator('input[name="minutes"]')).toHaveValue('0');
+    await expect(page.locator('textarea[name="description"]')).toHaveValue('');
+  });
+
+  test('displays recent entries in sidebar', async ({ extensionPage, mockStorage }) => {
+    const { page } = extensionPage;
+    
+    // Add some recent entries
+    const recentEntries = [
+      createMockOffPlatformEntry({
+        id: '1',
+        type: 'auditing',
+        hours: 1,
+        minutes: 30,
+        date: new Date().toISOString().split('T')[0],
+        description: 'Code review',
+        timestamp: Date.now() - 60000
+      }),
+      createMockOffPlatformEntry({
+        id: '2',
+        type: 'validation',
+        hours: 2,
+        minutes: 0,
+        date: new Date().toISOString().split('T')[0],
+        description: 'Testing features',
+        timestamp: Date.now()
+      })
+    ];
+    
+    await mockStorage.set({ offPlatformEntries: recentEntries });
+    
+    // Reload page to see recent entries
+    await page.reload();
+    await waitForExtensionReady(page);
+    await page.getByRole('tab', { name: 'Add Off Platform Time' }).click();
+    
+    // Check recent entries sidebar
+    await expect(page.locator('h3:has-text("Recent Entries")')).toBeVisible();
+    
+    // Should show entries in reverse order (newest first)
+    // Note: The component doesn't have data-testid, so we'll use the structure
+    const entriesContainer = page.locator('h3:has-text("Recent Entries")').locator('..');
+    const entries = entriesContainer.locator('.border-b');
+    await expect(entries).toHaveCount(2);
+    
+    // Check first entry (most recent)
+    await expect(entries.first()).toContainText('Validation');
+    await expect(entries.first()).toContainText('2h 0m');
+    
+    // Check second entry
+    await expect(entries.last()).toContainText('Auditing');
+    await expect(entries.last()).toContainText('1h 30m');
+  });
+
+  test('shows empty state for recent entries', async ({ extensionPage }) => {
+    const { page } = extensionPage;
+    
+    // Check empty state message
+    await expect(page.locator('text=No recent entries')).toBeVisible();
+    await expect(page.locator('text=Your logged time will appear here')).toBeVisible();
+  });
+
+  test('handles time input edge cases', async ({ extensionPage }) => {
+    const { page } = extensionPage;
+    
+    // Test focus behavior - should select all on focus
+    const hoursInput = page.locator('input[name="hours"]');
+    await hoursInput.fill('5');
+    await hoursInput.focus();
+    
+    // Type new value (should replace)
+    await hoursInput.type('3');
+    await expect(hoursInput).toHaveValue('3');
+    
+    // Test blur behavior - empty input should become 0
+    await hoursInput.fill('');
+    await hoursInput.blur();
+    await expect(hoursInput).toHaveValue('0');
+    
+    // Test max minutes validation
+    const minutesInput = page.locator('input[name="minutes"]');
+    await minutesInput.fill('90'); // Over max
+    await minutesInput.blur();
+    
+    // Browser should enforce max value
+    const value = await minutesInput.inputValue();
+    expect(Number(value)).toBeLessThanOrEqual(59);
+  });
+
+  test('updates daily and weekly hours after submission', async ({ extensionPage, mockStorage }) => {
+    const { page } = extensionPage;
+    
+    // Check initial daily hours in header
+    const headerSummary = page.locator('[data-testid="header-summary"]');
+    const initialDaily = await headerSummary.locator('text=/Today:.*h/').textContent();
+    expect(initialDaily).toContain('0:00/8h');
+    
+    // Submit a time entry
+    await page.locator('input[name="hours"]').fill('1');
+    await page.locator('input[name="minutes"]').fill('30');
+    await page.locator('button:has-text("Log Time Entry")').click();
+    
+    // Wait for success message
+    await expect(page.locator('text=Time Logged Successfully!')).toBeVisible();
+    
+    // Wait for state to update
+    await page.waitForTimeout(1000);
+    
+    // Check updated daily hours
+    const updatedDaily = await headerSummary.locator('text=/Today:.*h/').textContent();
+    expect(updatedDaily).toContain('1:30/8h');
+  });
+
+  test('shows only last 5 recent entries', async ({ extensionPage, mockStorage }) => {
+    const { page } = extensionPage;
+    
+    // Create 7 entries
+    const entries = [];
+    for (let i = 0; i < 7; i++) {
+      entries.push(createMockOffPlatformEntry({
+        id: `entry-${i}`,
+        type: 'auditing',
+        hours: 1,
+        minutes: 0,
+        description: `Entry ${i}`,
+        timestamp: Date.now() - (i * 60000)
+      }));
+    }
+    
+    await mockStorage.set({ offPlatformEntries: entries });
+    
+    // Reload page
+    await page.reload();
+    await waitForExtensionReady(page);
+    await page.getByRole('tab', { name: 'Add Off Platform Time' }).click();
+    
+    // Should only show 5 most recent entries
+    const entriesContainer = page.locator('h3:has-text("Recent Entries")').locator('..');
+    const recentEntryElements = entriesContainer.locator('.border-b');
+    await expect(recentEntryElements).toHaveCount(5);
+    
+    // Should show entries 0-4 (most recent)
+    await expect(recentEntryElements.first()).toContainText('Entry 0');
+    await expect(recentEntryElements.last()).toContainText('Entry 4');
+  });
+});

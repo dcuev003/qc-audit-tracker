@@ -1,0 +1,45 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - heading "QC Audit Tracker" [level=1]
+  - navigation:
+    - button "📊 Audits Dashboard"
+    - button "⏱️ Add Off Platform Time"
+    - button "📈 Analytics"
+    - button "⚙️ Settings"
+  - text: "Today: 0:00/8h Week: 0:00/40h $0"
+- main:
+  - heading "Log Off-Platform Time" [level=2]
+  - text: Activity Type
+  - radio "Auditing" [checked]
+  - text: Auditing
+  - radio "Self Onboarding"
+  - text: Self Onboarding
+  - radio "Validation"
+  - text: Validation
+  - radio "Onboarding/OH"
+  - text: Onboarding/OH
+  - radio "Other"
+  - text: Other Time Spent
+  - spinbutton: "0"
+  - text: hr
+  - spinbutton: "0"
+  - text: min Date
+  - textbox "Date": 2025-07-25
+  - text: Description (optional)
+  - textbox "Description (optional)"
+  - button "Clear Form"
+  - button "Log Time Entry" [disabled]
+  - heading "Recent Entries" [level=3]
+  - paragraph: No entries logged yet
+  - paragraph: Your recent activities will appear here
+  - heading "Quick Tips" [level=4]
+  - list:
+    - listitem: • Log time daily for accuracy
+    - listitem: • Use descriptions for context and export
+- contentinfo:
+  - text: Crafted with ⚡ by
+  - link "zeroxvee":
+    - /url: https://github.com/zeroxvee
+```

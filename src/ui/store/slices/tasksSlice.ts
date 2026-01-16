@@ -2,6 +2,7 @@ import { StateCreator } from 'zustand';
 import { AppStore } from '../types';
 import { Task, OffPlatformTimeEntry, ProjectOverride } from '@/shared/types/storage';
 import { createLogger } from '@/shared/logger';
+import { ChromeStorageSync } from '../chromeStorageSync';
 
 const logger = createLogger('TasksSlice');
 
@@ -35,27 +36,44 @@ export const createTasksSlice: StateCreator<
 
   loadTasks: async () => {
     try {
-      const result = await chrome.storage.local.get(['completedTasks', 'offPlatformTime', 'projectOverrides']);
+      const storage = ChromeStorageSync.getInstance();
+      const [tasks, offPlatformEntries, projectOverrides, projectNameMap] = await Promise.all([
+        storage.getTasks(),
+        storage.getOffPlatformEntries(),
+        storage.getProjectOverrides(),
+        storage.getProjectNameMap()
+      ]);
       
       // Filter tasks to get only last month's data
       const oneMonthAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
-      const tasks = (result.completedTasks || []).filter((task: Task) => 
+      
+      const filteredTasks = tasks.filter((task: Task) => 
         task.startTime >= oneMonthAgo
       );
+
+      const enrichedTasks = filteredTasks.map((task: Task) => {
+        if (task.projectId && !task.projectName) {
+          const mapped = projectNameMap[task.projectId];
+          if (mapped) {
+            return { ...task, projectName: mapped };
+          }
+        }
+        return task;
+      });
       
       set({
-        tasks,
-        offPlatformEntries: result.offPlatformTime || [],
-        projectOverrides: result.projectOverrides || [],
+        tasks: enrichedTasks,
+        offPlatformEntries,
+        projectOverrides,
       });
       
       // Update computed values after loading data
       get().updateComputedValues();
       
       logger.info('Tasks loaded', { 
-        tasksCount: tasks.length,
-        offPlatformCount: result.offPlatformTime?.length || 0,
-        overridesCount: result.projectOverrides?.length || 0,
+        tasksCount: enrichedTasks.length,
+        offPlatformCount: offPlatformEntries.length,
+        overridesCount: projectOverrides.length,
       });
     } catch (error) {
       logger.error('Failed to load tasks', error);
@@ -67,7 +85,7 @@ export const createTasksSlice: StateCreator<
     try {
       const tasks = [...get().tasks, task];
       set({ tasks });
-      await chrome.storage.local.set({ completedTasks: tasks });
+      await ChromeStorageSync.getInstance().setTasks(tasks);
       
       // Update computed values after adding task
       get().updateComputedValues();
@@ -85,7 +103,7 @@ export const createTasksSlice: StateCreator<
         task.qaOperationId === qaOperationId ? { ...task, ...updates } : task
       );
       set({ tasks });
-      await chrome.storage.local.set({ completedTasks: tasks });
+      await ChromeStorageSync.getInstance().setTasks(tasks);
       
       // Update computed values after updating task
       get().updateComputedValues();
@@ -101,7 +119,7 @@ export const createTasksSlice: StateCreator<
     try {
       const tasks = get().tasks.filter(task => task.qaOperationId !== qaOperationId);
       set({ tasks });
-      await chrome.storage.local.set({ completedTasks: tasks });
+      await ChromeStorageSync.getInstance().setTasks(tasks);
       
       // Update computed values after deleting task
       get().updateComputedValues();
@@ -117,7 +135,7 @@ export const createTasksSlice: StateCreator<
     try {
       const entries = [...get().offPlatformEntries, entry];
       set({ offPlatformEntries: entries });
-      await chrome.storage.local.set({ offPlatformTime: entries });
+      await ChromeStorageSync.getInstance().setOffPlatformEntries(entries);
       
       // Update computed values after adding off-platform entry
       get().updateComputedValues();
@@ -135,7 +153,7 @@ export const createTasksSlice: StateCreator<
         entry.id === id ? { ...entry, ...updates } : entry
       );
       set({ offPlatformEntries: entries });
-      await chrome.storage.local.set({ offPlatformTime: entries });
+      await ChromeStorageSync.getInstance().setOffPlatformEntries(entries);
       
       // Update computed values after updating off-platform entry
       get().updateComputedValues();
@@ -151,7 +169,7 @@ export const createTasksSlice: StateCreator<
     try {
       const entries = get().offPlatformEntries.filter(entry => entry.id !== id);
       set({ offPlatformEntries: entries });
-      await chrome.storage.local.set({ offPlatformTime: entries });
+      await ChromeStorageSync.getInstance().setOffPlatformEntries(entries);
       
       // Update computed values after deleting off-platform entry
       get().updateComputedValues();
@@ -177,7 +195,7 @@ export const createTasksSlice: StateCreator<
       }
       
       set({ projectOverrides: newOverrides });
-      await chrome.storage.local.set({ projectOverrides: newOverrides });
+      await ChromeStorageSync.getInstance().setProjectOverrides(newOverrides);
       logger.info('Project override updated', override);
     } catch (error) {
       logger.error('Failed to update project override', error);
@@ -189,7 +207,7 @@ export const createTasksSlice: StateCreator<
     try {
       const overrides = get().projectOverrides.filter(o => o.projectId !== projectId);
       set({ projectOverrides: overrides });
-      await chrome.storage.local.set({ projectOverrides: overrides });
+      await ChromeStorageSync.getInstance().setProjectOverrides(overrides);
       logger.info('Project override deleted', projectId);
     } catch (error) {
       logger.error('Failed to delete project override', error);

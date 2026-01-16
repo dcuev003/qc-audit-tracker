@@ -1,0 +1,1850 @@
+<testsuites id="" name="" tests="292" failures="18" skipped="272" errors="0" time="47.409461">
+<testsuite name="add-off-platform-time.spec.js" timestamp="2025-07-25T03:30:12.947Z" hostname="chromium" tests="22" failures="18" skipped="2" time="168.495" errors="0">
+<testcase name="Add Off-Platform Time Page E2E Tests › should display form with all activity types" classname="add-off-platform-time.spec.js" time="6.347">
+<failure message="add-off-platform-time.spec.js:45:3 should display form with all activity types" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:45:3 › Add Off-Platform Time Page E2E Tests › should display form with all activity types 
+
+    Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
+
+    Locator: locator('button:has-text("Auditing")')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('button:has-text("Auditing")')
+
+
+      48 |     
+      49 |     // Check activity type buttons
+    > 50 |     await expect(page.locator('button:has-text("Auditing")')).toBeVisible();
+         |                                                               ^
+      51 |     await expect(page.locator('button:has-text("Self Onboarding")')).toBeVisible();
+      52 |     await expect(page.locator('button:has-text("Validation")')).toBeVisible();
+      53 |     await expect(page.locator('button:has-text("Onboarding/OH")')).toBeVisible();
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:50:63
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--7ea08-orm-with-all-activity-types-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--7ea08-orm-with-all-activity-types-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--7ea08-orm-with-all-activity-types-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--7ea08-orm-with-all-activity-types-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--7ea08-orm-with-all-activity-types-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--7ea08-orm-with-all-activity-types-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should display form fields" classname="add-off-platform-time.spec.js" time="6.391">
+<failure message="add-off-platform-time.spec.js:57:3 should display form fields" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:57:3 › Add Off-Platform Time Page E2E Tests › should display form fields 
+
+    Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
+
+    Locator: locator('input[type="number"][placeholder="Hours"]')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('input[type="number"][placeholder="Hours"]')
+
+
+      57 |   test('should display form fields', async ({ page }) => {
+      58 |     // Check form fields
+    > 59 |     await expect(page.locator('input[type="number"][placeholder="Hours"]')).toBeVisible();
+         |                                                                             ^
+      60 |     await expect(page.locator('input[type="number"][placeholder="Minutes"]')).toBeVisible();
+      61 |     await expect(page.locator('input[type="date"]')).toBeVisible();
+      62 |     await expect(page.locator('textarea[placeholder*="description"]')).toBeVisible();
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:59:77
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--36d96--should-display-form-fields-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--36d96--should-display-form-fields-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--36d96--should-display-form-fields-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--36d96--should-display-form-fields-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--36d96--should-display-form-fields-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--36d96--should-display-form-fields-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should display recent entries sidebar" classname="add-off-platform-time.spec.js" time="1.271">
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should select different activity types" classname="add-off-platform-time.spec.js" time="11.288">
+<failure message="add-off-platform-time.spec.js:80:3 should select different activity types" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:80:3 › Add Off-Platform Time Page E2E Tests › should select different activity types 
+
+    TimeoutError: locator.getAttribute: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('button:has-text("Auditing")')
+
+
+      81 |     // Default should be auditing (first button should have active styles)
+      82 |     const auditingButton = page.locator('button:has-text("Auditing")');
+    > 83 |     const auditingClasses = await auditingButton.getAttribute('class');
+         |                                                  ^
+      84 |     expect(auditingClasses).toContain('bg-indigo-600');
+      85 |     
+      86 |     // Click validation
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:83:50
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--c37f7-ct-different-activity-types-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--c37f7-ct-different-activity-types-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--c37f7-ct-different-activity-types-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--c37f7-ct-different-activity-types-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--c37f7-ct-different-activity-types-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--c37f7-ct-different-activity-types-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should fill and submit form successfully" classname="add-off-platform-time.spec.js" time="10.967">
+<failure message="add-off-platform-time.spec.js:99:3 should fill and submit form successfully" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:99:3 › Add Off-Platform Time Page E2E Tests › should fill and submit form successfully 
+
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('button:has-text("Self Onboarding")')
+
+
+       99 |   test('should fill and submit form successfully', async ({ page }) => {
+      100 |     // Select activity type
+    > 101 |     await page.click('button:has-text("Self Onboarding")');
+          |                ^
+      102 |     
+      103 |     // Fill hours and minutes
+      104 |     await page.fill('input[placeholder="Hours"]', '3');
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:101:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--64c15-nd-submit-form-successfully-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--64c15-nd-submit-form-successfully-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--64c15-nd-submit-form-successfully-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--64c15-nd-submit-form-successfully-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--64c15-nd-submit-form-successfully-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--64c15-nd-submit-form-successfully-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should validate time input" classname="add-off-platform-time.spec.js" time="11.11">
+<failure message="add-off-platform-time.spec.js:129:3 should validate time input" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:129:3 › Add Off-Platform Time Page E2E Tests › should validate time input 
+
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('button:has-text("Add Entry")')
+
+
+      129 |   test('should validate time input', async ({ page }) => {
+      130 |     // Try to submit without time
+    > 131 |     await page.click('button:has-text("Add Entry")');
+          |                ^
+      132 |     
+      133 |     // Should show validation error
+      134 |     await expect(page.locator('text=Please enter a valid time duration')).toBeVisible();
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:131:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--24bfb--should-validate-time-input-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--24bfb--should-validate-time-input-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--24bfb--should-validate-time-input-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--24bfb--should-validate-time-input-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--24bfb--should-validate-time-input-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--24bfb--should-validate-time-input-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should validate minute range" classname="add-off-platform-time.spec.js" time="11.111">
+<failure message="add-off-platform-time.spec.js:144:3 should validate minute range" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:144:3 › Add Off-Platform Time Page E2E Tests › should validate minute range 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('input[placeholder="Minutes"]')
+
+
+      144 |   test('should validate minute range', async ({ page }) => {
+      145 |     // Enter invalid minutes
+    > 146 |     await page.fill('input[placeholder="Minutes"]', '75');
+          |                ^
+      147 |     
+      148 |     // Submit
+      149 |     await page.click('button:has-text("Add Entry")');
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:146:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--fbd6c-hould-validate-minute-range-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--fbd6c-hould-validate-minute-range-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--fbd6c-hould-validate-minute-range-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--fbd6c-hould-validate-minute-range-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--fbd6c-hould-validate-minute-range-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--fbd6c-hould-validate-minute-range-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should clear form when Clear Form clicked" classname="add-off-platform-time.spec.js" time="11.032">
+<failure message="add-off-platform-time.spec.js:162:3 should clear form when Clear Form clicked" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:162:3 › Add Off-Platform Time Page E2E Tests › should clear form when Clear Form clicked 
+
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('button:has-text("Other")')
+
+
+      162 |   test('should clear form when Clear Form clicked', async ({ page }) => {
+      163 |     // Fill form
+    > 164 |     await page.click('button:has-text("Other")');
+          |                ^
+      165 |     await page.fill('input[placeholder="Hours"]', '2');
+      166 |     await page.fill('input[placeholder="Minutes"]', '30');
+      167 |     await page.fill('textarea', 'Test description');
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:164:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--77e34-orm-when-Clear-Form-clicked-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--77e34-orm-when-Clear-Form-clicked-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--77e34-orm-when-Clear-Form-clicked-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--77e34-orm-when-Clear-Form-clicked-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--77e34-orm-when-Clear-Form-clicked-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--77e34-orm-when-Clear-Form-clicked-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should handle edge times correctly" classname="add-off-platform-time.spec.js" time="11.029">
+<failure message="add-off-platform-time.spec.js:183:3 should handle edge times correctly" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:183:3 › Add Off-Platform Time Page E2E Tests › should handle edge times correctly 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('input[placeholder="Hours"]')
+
+
+      183 |   test('should handle edge times correctly', async ({ page }) => {
+      184 |     // Test 24 hours
+    > 185 |     await page.fill('input[placeholder="Hours"]', '24');
+          |                ^
+      186 |     await page.fill('input[placeholder="Minutes"]', '0');
+      187 |     await page.click('button:has-text("Add Entry")');
+      188 |     
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:185:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--73038-handle-edge-times-correctly-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--73038-handle-edge-times-correctly-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--73038-handle-edge-times-correctly-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--73038-handle-edge-times-correctly-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--73038-handle-edge-times-correctly-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--73038-handle-edge-times-correctly-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should show form again after success" classname="add-off-platform-time.spec.js" time="11.115">
+<failure message="add-off-platform-time.spec.js:193:3 should show form again after success" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:193:3 › Add Off-Platform Time Page E2E Tests › should show form again after success 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('input[placeholder="Hours"]')
+
+
+      193 |   test('should show form again after success', async ({ page }) => {
+      194 |     // Submit entry
+    > 195 |     await page.fill('input[placeholder="Hours"]', '1');
+          |                ^
+      196 |     await page.click('button:has-text("Add Entry")');
+      197 |     
+      198 |     // Success message should show
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:195:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--9d694-ow-form-again-after-success-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--9d694-ow-form-again-after-success-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--9d694-ow-form-again-after-success-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--9d694-ow-form-again-after-success-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--9d694-ow-form-again-after-success-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--9d694-ow-form-again-after-success-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should use recent entry as template" classname="add-off-platform-time.spec.js" time="11.15">
+<failure message="add-off-platform-time.spec.js:211:3 should use recent entry as template" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:211:3 › Add Off-Platform Time Page E2E Tests › should use recent entry as template 
+
+    TimeoutError: locator.getAttribute: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('button:has-text("Validation")')
+
+
+      216 |     // Form should be populated
+      217 |     const validationButton = page.locator('button:has-text("Validation")');
+    > 218 |     const validationClasses = await validationButton.getAttribute('class');
+          |                                                      ^
+      219 |     expect(validationClasses).toContain('bg-indigo-600');
+      220 |     
+      221 |     // Time should be populated
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:218:54
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--fc20f-se-recent-entry-as-template-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--fc20f-se-recent-entry-as-template-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--fc20f-se-recent-entry-as-template-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--fc20f-se-recent-entry-as-template-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--fc20f-se-recent-entry-as-template-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--fc20f-se-recent-entry-as-template-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should handle date changes" classname="add-off-platform-time.spec.js" time="11.038">
+<failure message="add-off-platform-time.spec.js:229:3 should handle date changes" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:229:3 › Add Off-Platform Time Page E2E Tests › should handle date changes 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('input[placeholder="Hours"]')
+
+
+      233 |     
+      234 |     await page.fill('input[type="date"]', dateString);
+    > 235 |     await page.fill('input[placeholder="Hours"]', '5');
+          |                ^
+      236 |     
+      237 |     // Submit
+      238 |     await page.click('button:has-text("Add Entry")');
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:235:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--95673--should-handle-date-changes-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--95673--should-handle-date-changes-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--95673--should-handle-date-changes-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--95673--should-handle-date-changes-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--95673--should-handle-date-changes-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--95673--should-handle-date-changes-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should show appropriate icons for activity types" classname="add-off-platform-time.spec.js" time="0.816">
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should handle empty description" classname="add-off-platform-time.spec.js" time="10.965">
+<failure message="add-off-platform-time.spec.js:256:3 should handle empty description" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:256:3 › Add Off-Platform Time Page E2E Tests › should handle empty description 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('input[placeholder="Hours"]')
+
+
+      256 |   test('should handle empty description', async ({ page }) => {
+      257 |     // Fill only time
+    > 258 |     await page.fill('input[placeholder="Hours"]', '1');
+          |                ^
+      259 |     
+      260 |     // Submit without description
+      261 |     await page.click('button:has-text("Add Entry")');
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:258:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--86ec6-ld-handle-empty-description-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--86ec6-ld-handle-empty-description-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--86ec6-ld-handle-empty-description-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--86ec6-ld-handle-empty-description-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--86ec6-ld-handle-empty-description-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--86ec6-ld-handle-empty-description-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should maintain form state during validation errors" classname="add-off-platform-time.spec.js" time="11.099">
+<failure message="add-off-platform-time.spec.js:272:3 should maintain form state during validation errors" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:272:3 › Add Off-Platform Time Page E2E Tests › should maintain form state during validation errors 
+
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('button:has-text("Other")')
+
+
+      272 |   test('should maintain form state during validation errors', async ({ page }) => {
+      273 |     // Fill form with invalid data
+    > 274 |     await page.click('button:has-text("Other")');
+          |                ^
+      275 |     await page.fill('input[placeholder="Minutes"]', '99');
+      276 |     await page.fill('textarea', 'Test task description');
+      277 |     
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:274:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--d58d4-te-during-validation-errors-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--d58d4-te-during-validation-errors-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--d58d4-te-during-validation-errors-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--d58d4-te-during-validation-errors-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--d58d4-te-during-validation-errors-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--d58d4-te-during-validation-errors-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should handle rapid submissions" classname="add-off-platform-time.spec.js" time="11.059">
+<failure message="add-off-platform-time.spec.js:291:3 should handle rapid submissions" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:291:3 › Add Off-Platform Time Page E2E Tests › should handle rapid submissions 
+
+    TimeoutError: page.fill: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('input[placeholder="Hours"]')
+
+
+      291 |   test('should handle rapid submissions', async ({ page }) => {
+      292 |     // Fill minimal valid form
+    > 293 |     await page.fill('input[placeholder="Hours"]', '1');
+          |                ^
+      294 |     
+      295 |     // Click submit multiple times quickly
+      296 |     const submitButton = page.locator('button:has-text("Add Entry")');
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:293:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--48126-ld-handle-rapid-submissions-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--48126-ld-handle-rapid-submissions-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--48126-ld-handle-rapid-submissions-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--48126-ld-handle-rapid-submissions-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--48126-ld-handle-rapid-submissions-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--48126-ld-handle-rapid-submissions-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should scroll to form on mobile viewport" classname="add-off-platform-time.spec.js" time="1.276">
+<failure message="add-off-platform-time.spec.js:309:3 should scroll to form on mobile viewport" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:309:3 › Add Off-Platform Time Page E2E Tests › should scroll to form on mobile viewport 
+
+    TypeError: page.locator(...).isInViewport is not a function
+
+      320 |     // Form should be scrolled into view
+      321 |     await page.waitForTimeout(500);
+    > 322 |     const formVisible = await page.locator('h2:has-text("Log Off-Platform Time")').isInViewport();
+          |                                                                                    ^
+      323 |     expect(formVisible).toBe(true);
+      324 |   });
+      325 | });
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:322:84
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--d4c75--to-form-on-mobile-viewport-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--d4c75--to-form-on-mobile-viewport-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--d4c75--to-form-on-mobile-viewport-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--d4c75--to-form-on-mobile-viewport-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--d4c75--to-form-on-mobile-viewport-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--d4c75--to-form-on-mobile-viewport-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Accessibility › should have proper form labels and ARIA attributes" classname="add-off-platform-time.spec.js" time="5.522">
+<failure message="add-off-platform-time.spec.js:339:3 should have proper form labels and ARIA attributes" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:339:3 › Add Off-Platform Time Accessibility › should have proper form labels and ARIA attributes 
+
+    Error: Timed out 5000ms waiting for expect(locator).toHaveCount(expected)
+
+    Locator: locator('form')
+    Expected: 1
+    Received: 0
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for locator('form')
+        9 × locator resolved to 0 elements
+          - unexpected value "0"
+
+
+      340 |     // Check form has proper structure
+      341 |     const form = page.locator('form');
+    > 342 |     await expect(form).toHaveCount(1);
+          |                        ^
+      343 |     
+      344 |     // Check inputs have labels or aria-labels
+      345 |     const inputs = await page.locator('input').all();
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:342:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--a1891--labels-and-ARIA-attributes-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--a1891--labels-and-ARIA-attributes-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--a1891--labels-and-ARIA-attributes-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--a1891--labels-and-ARIA-attributes-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--a1891--labels-and-ARIA-attributes-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--a1891--labels-and-ARIA-attributes-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Accessibility › should support keyboard navigation" classname="add-off-platform-time.spec.js" time="0.342">
+<failure message="add-off-platform-time.spec.js:359:3 should support keyboard navigation" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:359:3 › Add Off-Platform Time Accessibility › should support keyboard navigation 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Hours"
+    Received: null
+
+      372 |     // Should reach hours input
+      373 |     focusedElement = await page.evaluate(() => document.activeElement?.getAttribute('placeholder'));
+    > 374 |     expect(focusedElement).toBe('Hours');
+          |                            ^
+      375 |     
+      376 |     // Continue tabbing through form
+      377 |     await page.keyboard.press('Tab'); // Minutes
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:374:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--e2b37-support-keyboard-navigation-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--e2b37-support-keyboard-navigation-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--e2b37-support-keyboard-navigation-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--e2b37-support-keyboard-navigation-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--e2b37-support-keyboard-navigation-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--e2b37-support-keyboard-navigation-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Accessibility › should announce validation errors" classname="add-off-platform-time.spec.js" time="8.773">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Accessibility › should have proper heading hierarchy" classname="add-off-platform-time.spec.js" time="0.37">
+<failure message="add-off-platform-time.spec.js:401:3 should have proper heading hierarchy" type="FAILURE">
+<![CDATA[  [chromium] › add-off-platform-time.spec.js:401:3 › Add Off-Platform Time Accessibility › should have proper heading hierarchy 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 1
+
+      408 |     // No h1 or skipped heading levels
+      409 |     const h1Count = await page.locator('h1').count();
+    > 410 |     expect(h1Count).toBe(0);
+          |                     ^
+      411 |   });
+      412 |
+      413 |   test('should provide keyboard shortcuts for activity selection', async ({ page }) => {
+        at /Users/vlad/code/qc-audit-tracker/e2e/add-off-platform-time.spec.js:410:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--bf6aa-ve-proper-heading-hierarchy-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/add-off-platform-time-Add--bf6aa-ve-proper-heading-hierarchy-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/add-off-platform-time-Add--bf6aa-ve-proper-heading-hierarchy-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|add-off-platform-time-Add--bf6aa-ve-proper-heading-hierarchy-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|add-off-platform-time-Add--bf6aa-ve-proper-heading-hierarchy-chromium/video.webm]]
+
+[[ATTACHMENT|add-off-platform-time-Add--bf6aa-ve-proper-heading-hierarchy-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Add Off-Platform Time Accessibility › should provide keyboard shortcuts for activity selection" classname="add-off-platform-time.spec.js" time="4.424">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="analytics.spec.js" timestamp="2025-07-25T03:30:12.947Z" hostname="chromium" tests="28" failures="0" skipped="28" time="7.185" errors="0">
+<testcase name="Analytics E2E Tests › should display analytics header with page title" classname="analytics.spec.js" time="3.615">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display key metrics cards" classname="analytics.spec.js" time="3.57">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should calculate and display today earnings correctly" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display weekly earnings with PST calculation" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display hours worked in hh:mm format" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should show daily average calculation" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display audit completion metrics" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should calculate efficiency rate" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should show overtime hours when applicable" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display time range selector" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should update charts when changing time range" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display hours by project chart" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display daily hours trend chart" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display hours by activity type chart" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display earnings over time chart" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should show project statistics table" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should calculate project efficiency correctly" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should update metrics in real-time with active timers" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should handle empty data gracefully" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should respect overtime settings in calculations" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should export analytics data" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should show loading state during data updates" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display correct chart tooltips on hover" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should maintain scroll position when updating" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics Accessibility › should have proper heading hierarchy" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics Accessibility › should support keyboard navigation" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics Accessibility › should have descriptive chart labels" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics Accessibility › should announce metric updates to screen readers" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="dashboard-table.spec.js" timestamp="2025-07-25T03:30:12.947Z" hostname="chromium" tests="12" failures="0" skipped="12" time="0" errors="0">
+<testcase name="Dashboard Table Advanced Features › individual column filtering" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › copy row to clipboard" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › inline edit max time" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › project override visual indicators" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › sorting with mixed data types" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › multi-column filtering" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › completion time display format" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › status indicators and filtering" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › table performance with large dataset" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › export respects current filters" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › keyboard navigation in table" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › responsive column hiding on small screens" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="dashboard.spec.js" timestamp="2025-07-25T03:30:12.947Z" hostname="chromium" tests="26" failures="0" skipped="26" time="0" errors="0">
+<testcase name="Dashboard E2E Tests › should display dashboard header with navigation" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should display daily and weekly hours in header" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should display data table with entries" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should display project override correctly" classname="dashboard.spec.js" time="0">
+<properties>
+<property name="skip" value="">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should filter by entry type" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should filter by date range" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should filter by activity type for off-platform entries" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should sort table columns" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should show and use column filters" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should use global search" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should export data" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should inline edit project name" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should inline edit max time" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should delete entry with confirmation" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should copy entry as CSV" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should show data quality warning banner" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should handle pagination" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should toggle column visibility" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should show empty state" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should show filtered empty state" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should handle active timers in dashboard" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should maintain filters after data updates" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should handle keyboard navigation in table" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Accessibility › should have proper table structure and ARIA labels" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Accessibility › should support keyboard navigation" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Accessibility › should announce filter changes to screen readers" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="performance.spec.js" timestamp="2025-07-25T03:30:12.947Z" hostname="chromium" tests="9" failures="0" skipped="9" time="0" errors="0">
+<testcase name="Performance Tests with Large Datasets › Dashboard Table Performance › should handle 1000 entries efficiently" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance Tests with Large Datasets › Dashboard Table Performance › should sort 1000 entries quickly" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance Tests with Large Datasets › Dashboard Table Performance › should filter 1000 entries efficiently" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance Tests with Large Datasets › Dashboard Table Performance › should handle global search on 1000 entries" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance Tests with Large Datasets › Analytics Performance › should calculate analytics for 5000 entries" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance Tests with Large Datasets › Analytics Performance › should switch time ranges quickly with large dataset" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance Tests with Large Datasets › Export Performance › should export 2000 entries to CSV efficiently" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance Tests with Large Datasets › Memory Usage › should not leak memory with repeated operations" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance Tests with Large Datasets › Scroll Performance › should scroll smoothly through 1000 entries" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="popup-timer.spec.js" timestamp="2025-07-25T03:30:12.947Z" hostname="chromium" tests="10" failures="0" skipped="10" time="0" errors="0">
+<testcase name="Popup Off-Platform Timer › starts and stops timer" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › pauses and resumes timer" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › switches activities with confirmation" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › cancels activity switch" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › persists timer state when popup closes" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › saves entry when stopping timer" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › displays all activity types" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › disables start button without activity selection" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › shows visual feedback for stop confirmation" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › integrates with daily/weekly progress in real-time" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="popup.spec.js" timestamp="2025-07-25T03:30:12.947Z" hostname="chromium" tests="13" failures="0" skipped="13" time="0" errors="0">
+<testcase name="Popup Component E2E Tests › should display the main popup UI elements" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should display daily and weekly hours in hh:mm format" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should toggle tracking state" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should open dashboard when clicking Open Dashboard button" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should show/hide off-platform timer" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should start and stop off-platform timer" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should show activity change confirmation when timer is running" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should auto-expand timer section if timer is active" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should handle errors gracefully" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should display correct styling for overtime hours" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should maintain popup dimensions" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Accessibility › should have proper ARIA labels and roles" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Accessibility › should support keyboard navigation" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="settings.spec.js" timestamp="2025-07-25T03:30:12.947Z" hostname="chromium" tests="26" failures="0" skipped="26" time="0" errors="0">
+<testcase name="Settings Page E2E Tests › should display all settings sections" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should display current values for all settings" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should update daily goal hours" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should update weekly goal hours" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should toggle daily overtime" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should update hourly rate" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should update overtime rate multiplier" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should toggle tracking enabled" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should toggle debug logging" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should display timezone information" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should display existing project overrides" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should add new project override" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should edit existing project override" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should delete project override" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should search project overrides" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should validate input values" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should reset form when Reset clicked" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should display save/reset buttons only when changes made" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should display version information" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should handle project override for tasks without existing ID" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should show help tooltips on hover" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should maintain scroll position after save" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Accessibility › should have proper form labels" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Accessibility › should support keyboard navigation" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Accessibility › should have proper heading hierarchy" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Accessibility › should announce changes to screen readers" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="add-off-platform-time.spec.js" timestamp="2025-07-25T03:30:12.947Z" hostname="extension" tests="22" failures="0" skipped="22" time="0" errors="0">
+<testcase name="Add Off-Platform Time Page E2E Tests › should display form with all activity types" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should display form fields" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should display recent entries sidebar" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should select different activity types" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should fill and submit form successfully" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should validate time input" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should validate minute range" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should clear form when Clear Form clicked" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should handle edge times correctly" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should show form again after success" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should use recent entry as template" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should handle date changes" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should show appropriate icons for activity types" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should handle empty description" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should maintain form state during validation errors" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should handle rapid submissions" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Page E2E Tests › should scroll to form on mobile viewport" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Accessibility › should have proper form labels and ARIA attributes" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Accessibility › should support keyboard navigation" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Accessibility › should announce validation errors" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Accessibility › should have proper heading hierarchy" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Add Off-Platform Time Accessibility › should provide keyboard shortcuts for activity selection" classname="add-off-platform-time.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="analytics.spec.js" timestamp="2025-07-25T03:30:12.947Z" hostname="extension" tests="28" failures="0" skipped="28" time="0" errors="0">
+<testcase name="Analytics E2E Tests › should display analytics header with page title" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display key metrics cards" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should calculate and display today earnings correctly" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display weekly earnings with PST calculation" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display hours worked in hh:mm format" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should show daily average calculation" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display audit completion metrics" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should calculate efficiency rate" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should show overtime hours when applicable" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display time range selector" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should update charts when changing time range" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display hours by project chart" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display daily hours trend chart" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display hours by activity type chart" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display earnings over time chart" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should show project statistics table" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should calculate project efficiency correctly" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should update metrics in real-time with active timers" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should handle empty data gracefully" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should respect overtime settings in calculations" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should export analytics data" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should show loading state during data updates" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should display correct chart tooltips on hover" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics E2E Tests › should maintain scroll position when updating" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics Accessibility › should have proper heading hierarchy" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics Accessibility › should support keyboard navigation" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics Accessibility › should have descriptive chart labels" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Analytics Accessibility › should announce metric updates to screen readers" classname="analytics.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="dashboard-table.spec.js" timestamp="2025-07-25T03:30:12.947Z" hostname="extension" tests="12" failures="0" skipped="12" time="0" errors="0">
+<testcase name="Dashboard Table Advanced Features › individual column filtering" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › copy row to clipboard" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › inline edit max time" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › project override visual indicators" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › sorting with mixed data types" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › multi-column filtering" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › completion time display format" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › status indicators and filtering" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › table performance with large dataset" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › export respects current filters" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › keyboard navigation in table" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Table Advanced Features › responsive column hiding on small screens" classname="dashboard-table.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="dashboard.spec.js" timestamp="2025-07-25T03:30:12.947Z" hostname="extension" tests="26" failures="0" skipped="26" time="0" errors="0">
+<testcase name="Dashboard E2E Tests › should display dashboard header with navigation" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should display daily and weekly hours in header" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should display data table with entries" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should display project override correctly" classname="dashboard.spec.js" time="0">
+<properties>
+<property name="skip" value="">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should filter by entry type" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should filter by date range" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should filter by activity type for off-platform entries" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should sort table columns" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should show and use column filters" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should use global search" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should export data" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should inline edit project name" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should inline edit max time" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should delete entry with confirmation" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should copy entry as CSV" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should show data quality warning banner" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should handle pagination" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should toggle column visibility" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should show empty state" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should show filtered empty state" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should handle active timers in dashboard" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should maintain filters after data updates" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard E2E Tests › should handle keyboard navigation in table" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Accessibility › should have proper table structure and ARIA labels" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Accessibility › should support keyboard navigation" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Dashboard Accessibility › should announce filter changes to screen readers" classname="dashboard.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="performance.spec.js" timestamp="2025-07-25T03:30:12.947Z" hostname="extension" tests="9" failures="0" skipped="9" time="0" errors="0">
+<testcase name="Performance Tests with Large Datasets › Dashboard Table Performance › should handle 1000 entries efficiently" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance Tests with Large Datasets › Dashboard Table Performance › should sort 1000 entries quickly" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance Tests with Large Datasets › Dashboard Table Performance › should filter 1000 entries efficiently" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance Tests with Large Datasets › Dashboard Table Performance › should handle global search on 1000 entries" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance Tests with Large Datasets › Analytics Performance › should calculate analytics for 5000 entries" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance Tests with Large Datasets › Analytics Performance › should switch time ranges quickly with large dataset" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance Tests with Large Datasets › Export Performance › should export 2000 entries to CSV efficiently" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance Tests with Large Datasets › Memory Usage › should not leak memory with repeated operations" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Performance Tests with Large Datasets › Scroll Performance › should scroll smoothly through 1000 entries" classname="performance.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="popup-timer.spec.js" timestamp="2025-07-25T03:30:12.947Z" hostname="extension" tests="10" failures="0" skipped="10" time="0" errors="0">
+<testcase name="Popup Off-Platform Timer › starts and stops timer" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › pauses and resumes timer" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › switches activities with confirmation" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › cancels activity switch" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › persists timer state when popup closes" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › saves entry when stopping timer" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › displays all activity types" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › disables start button without activity selection" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › shows visual feedback for stop confirmation" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Off-Platform Timer › integrates with daily/weekly progress in real-time" classname="popup-timer.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="popup.spec.js" timestamp="2025-07-25T03:30:12.947Z" hostname="extension" tests="13" failures="0" skipped="13" time="0" errors="0">
+<testcase name="Popup Component E2E Tests › should display the main popup UI elements" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should display daily and weekly hours in hh:mm format" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should toggle tracking state" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should open dashboard when clicking Open Dashboard button" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should show/hide off-platform timer" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should start and stop off-platform timer" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should show activity change confirmation when timer is running" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should auto-expand timer section if timer is active" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should handle errors gracefully" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should display correct styling for overtime hours" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Component E2E Tests › should maintain popup dimensions" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Accessibility › should have proper ARIA labels and roles" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Popup Accessibility › should support keyboard navigation" classname="popup.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="settings.spec.js" timestamp="2025-07-25T03:30:12.947Z" hostname="extension" tests="26" failures="0" skipped="26" time="0" errors="0">
+<testcase name="Settings Page E2E Tests › should display all settings sections" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should display current values for all settings" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should update daily goal hours" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should update weekly goal hours" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should toggle daily overtime" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should update hourly rate" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should update overtime rate multiplier" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should toggle tracking enabled" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should toggle debug logging" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should display timezone information" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should display existing project overrides" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should add new project override" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should edit existing project override" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should delete project override" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should search project overrides" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should validate input values" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should reset form when Reset clicked" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should display save/reset buttons only when changes made" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should display version information" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should handle project override for tasks without existing ID" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should show help tooltips on hover" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Page E2E Tests › should maintain scroll position after save" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Accessibility › should have proper form labels" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Accessibility › should support keyboard navigation" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Accessibility › should have proper heading hierarchy" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Settings Accessibility › should announce changes to screen readers" classname="settings.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+</testsuites>

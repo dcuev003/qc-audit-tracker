@@ -5,7 +5,7 @@ import { StorageManager } from './storage';
 import { MessageHandler } from './messages';
 import { ActiveTimerManager } from './activeTimerManager';
 import { createLogger } from '../shared/logger';
-import { DEFAULT_MAX_TIME } from '../shared/constants';
+import { DEFAULT_MAX_TIME, PROJECT_MAX_TIMES_URL, ALARM_NAMES } from '../shared/constants';
 
 const logger = createLogger('Background');
 
@@ -15,11 +15,12 @@ class BackgroundService {
   private messages: MessageHandler;
   private activeTimerManager: ActiveTimerManager;
   private currentTask: Task | null = null;
+  private isFetchingProjectMaxTimes = false;
 
   constructor() {
     this.timer = new TimerManager();
     this.storage = new StorageManager();
-    this.activeTimerManager = new ActiveTimerManager();
+    this.activeTimerManager = new ActiveTimerManager(this.storage);
     this.messages = new MessageHandler({
       onStartTracking: this.startTracking.bind(this),
       onStopTracking: this.stopTracking.bind(this),
@@ -60,6 +61,10 @@ class BackgroundService {
 
     // Schedule periodic health checks every hour
     this.schedulePeriodicHealthChecks();
+
+    // Refresh project max times (on startup and daily)
+    await this.refreshProjectMaxTimesIfNeeded();
+    this.scheduleDailyProjectMaxTimesRefresh();
 
     logger.info('Background service initialized');
   }
@@ -240,13 +245,19 @@ class BackgroundService {
       });
     }
 
+    const effectiveProjectId = payload.projectId || this.currentTask.projectId;
+
+    if (effectiveProjectId && payload.projectName) {
+      await this.storage.setProjectName(effectiveProjectId, payload.projectName);
+    }
+
     // Check for project overrides
     let override = null;
-    if (payload.projectId) {
-      override = await this.storage.getProjectOverride(payload.projectId);
+    if (effectiveProjectId) {
+      override = await this.storage.getProjectOverride(effectiveProjectId);
       if (override) {
         logger.info('Applying project override', {
-          projectId: payload.projectId,
+          projectId: effectiveProjectId,
           override: {
             displayName: override.displayName,
             maxTime: override.maxTime
@@ -255,6 +266,7 @@ class BackgroundService {
         
         if (override.displayName) {
           this.currentTask.projectName = override.displayName;
+          await this.storage.setProjectName(effectiveProjectId, override.displayName);
         }
         if (override.maxTime) {
           this.currentTask.maxTime = override.maxTime;
@@ -263,17 +275,73 @@ class BackgroundService {
       }
     }
 
-    // Update max time if provided (allow updates when new value is intercepted)
-    // Only apply intercepted maxTime if no project override maxTime was applied
-    if (payload.maxTime && (!override || !override.maxTime)) {
+    if (!this.currentTask.projectName && effectiveProjectId) {
+      const storedName = await this.storage.getProjectName(effectiveProjectId);
+      if (storedName) {
+        this.currentTask.projectName = storedName;
+      }
+    }
+
+    // Prefer stored project max times mapping if available (and no override)
+    let appliedFromMap = false;
+    if (effectiveProjectId && (!override || override.maxTime === undefined)) {
+      const mapped = await this.storage.getProjectMaxTime(effectiveProjectId);
+      if (mapped && typeof mapped === 'number') {
+        logger.info('Applied maxTime from stored project map', {
+          projectId: effectiveProjectId,
+          mappedSeconds: mapped,
+        });
+        this.currentTask.maxTime = mapped;
+        this.timer.updateMaxTime(mapped);
+        appliedFromMap = true;
+      }
+    }
+
+    const payloadMaxTime =
+      typeof payload.maxTime === 'number' && payload.maxTime > 0
+        ? payload.maxTime
+        : null;
+
+    const shouldApplyPayloadMaxTime =
+      payloadMaxTime !== null &&
+      (!override || override.maxTime === undefined) &&
+      !appliedFromMap &&
+      (
+        !this.currentTask.maxTime ||
+        this.currentTask.maxTime === DEFAULT_MAX_TIME ||
+        payloadMaxTime > this.currentTask.maxTime
+      );
+
+    if (shouldApplyPayloadMaxTime) {
       logger.info('Updating maxTime from intercepted data', {
         previousMaxTime: this.currentTask.maxTime,
-        newMaxTime: payload.maxTime,
+        newMaxTime: payloadMaxTime,
         hasOverride: !!override,
         overrideHasMaxTime: !!(override?.maxTime)
       });
-      this.currentTask.maxTime = payload.maxTime;
-      this.timer.updateMaxTime(payload.maxTime);
+      this.currentTask.maxTime = payloadMaxTime;
+      this.timer.updateMaxTime(payloadMaxTime);
+    } else if (payloadMaxTime !== null && !shouldApplyPayloadMaxTime) {
+      logger.info('Ignoring intercepted maxTime value', {
+        interceptedSeconds: payloadMaxTime,
+        currentMaxTime: this.currentTask.maxTime,
+        appliedFromMap,
+        hasOverride: !!(override && override.maxTime !== undefined)
+      });
+    }
+
+    // Opportunistic refresh if map missing this project and we haven't fetched today
+    if (effectiveProjectId) {
+      try {
+        const lastFetch = await this.storage.getProjectMaxTimesLastFetch();
+        const now = new Date();
+        const last = lastFetch ? new Date(lastFetch) : null;
+        const sameDay = last && last.getFullYear() === now.getFullYear() && last.getMonth() === now.getMonth() && last.getDate() === now.getDate();
+        const map = await this.storage.getProjectMaxTimes();
+        if (!map[effectiveProjectId] && !sameDay) {
+          this.refreshProjectMaxTimesIfNeeded();
+        }
+      } catch {}
     }
 
     // Update active timer with new task data (including projectId updates)
@@ -518,6 +586,84 @@ class BackgroundService {
 
     logger.info('Periodic health checks scheduled (every hour)');
   }
+
+  // ----- Project Max Times: Fetching & Scheduling -----
+  private async refreshProjectMaxTimesIfNeeded(force: boolean = false): Promise<void> {
+    try {
+      if (this.isFetchingProjectMaxTimes) {
+        return;
+      }
+      this.isFetchingProjectMaxTimes = true;
+      const lastFetch = await this.storage.getProjectMaxTimesLastFetch();
+      const now = Date.now();
+
+      const lastDate = lastFetch ? new Date(lastFetch) : null;
+      const today = new Date();
+      const isSameDay =
+        lastDate &&
+        lastDate.getFullYear() === today.getFullYear() &&
+        lastDate.getMonth() === today.getMonth() &&
+        lastDate.getDate() === today.getDate();
+
+      if (!force && isSameDay) {
+        logger.info('Project max times up-to-date (already fetched today)');
+        return;
+      }
+
+      logger.info('Fetching project max times from external source...');
+      const res = await fetch(PROJECT_MAX_TIMES_URL, {
+        method: 'GET',
+        cache: 'no-cache',
+        referrerPolicy: 'no-referrer',
+        credentials: 'omit'
+      });
+      let text = '';
+      try { text = await res.text(); } catch {}
+      if (!res.ok) {
+        logger.error('Project max times fetch failed', { status: res.status, bodySample: text?.slice?.(0, 200) });
+        return; // Do not throw; keep extension healthy and rely on fallback mining
+      }
+      let data: any = {};
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (e) {
+        logger.error('Failed to parse project max times JSON', { bodySample: text?.slice?.(0, 200) });
+        return;
+      }
+      // Expect data as: { [projectId: string]: number } where value is minutes
+      const minutesMap: Record<string, number> = data || {};
+      const secondsMap: Record<string, number> = {};
+      for (const [projectId, minutes] of Object.entries(minutesMap)) {
+        if (typeof minutes === 'number' && isFinite(minutes) && minutes >= 0) {
+          secondsMap[projectId] = Math.round(minutes * 60);
+        }
+      }
+
+      await this.storage.setProjectMaxTimes(secondsMap, now);
+      logger.info('Project max times fetched and saved', {
+        count: Object.keys(secondsMap).length,
+      });
+    } catch (error) {
+      logger.error('Error refreshing project max times', error);
+    } finally {
+      this.isFetchingProjectMaxTimes = false;
+    }
+  }
+
+  private scheduleDailyProjectMaxTimesRefresh(): void {
+    chrome.alarms.create(ALARM_NAMES.PROJECT_MAX_TIMES_REFRESH, {
+      delayInMinutes: 60, // first run in 1 hour
+      periodInMinutes: 24 * 60, // then every day
+    });
+
+    chrome.alarms.onAlarm.addListener((alarm) => {
+      if (alarm.name === ALARM_NAMES.PROJECT_MAX_TIMES_REFRESH) {
+        this.refreshProjectMaxTimesIfNeeded();
+      }
+    });
+
+    logger.info('Daily project max times refresh scheduled');
+  }
 }
 
 // Initialize background service
@@ -529,7 +675,8 @@ chrome.runtime.onInstalled.addListener((details) => {
   
   if (details.reason === 'install') {
     // Set default settings on first install
-    chrome.storage.local.set({
+    const storage = new StorageManager();
+    storage.updateSettings({
       trackingEnabled: true,
       qcDevLogging: false
     });

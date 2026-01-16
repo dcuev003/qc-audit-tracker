@@ -109,6 +109,7 @@ function createCachedData(state: any): CachedAnalyticsData {
 		dailyHours,
 		weeklyHours,
 		projectOverrides,
+		projectNameMap = {},
 	} = state;
 	const currentTime = Date.now();
 
@@ -146,8 +147,18 @@ function createCachedData(state: any): CachedAnalyticsData {
 		return b.startTime - a.startTime;
 	});
 
+	const enrichedEntries = sortedEntries.map((entry) => {
+		if (entry.projectId && !entry.projectName) {
+			const mapped = projectNameMap[entry.projectId];
+			if (mapped) {
+				return { ...entry, projectName: mapped };
+			}
+		}
+		return entry;
+	});
+
 	return {
-		entries: sortedEntries,
+		entries: enrichedEntries,
 		dailyHours,
 		weeklyHours,
 		projectOverrides,

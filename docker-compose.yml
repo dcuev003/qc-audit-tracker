@@ -1,0 +1,22 @@
+# QC Audit Tracker - Development Environment
+#
+# Usage:
+#   docker-compose up -d        # Start container in background
+#   docker-compose exec app sh  # Open shell in container
+#   docker-compose down         # Stop container
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qc-audit-tracker-dev
+    volumes:
+      # Mount source code for live editing (optional - remove for isolated testing)
+      # - .:/app
+      # - /app/node_modules  # Preserve container's node_modules
+      []
+    stdin_open: true
+    tty: true
+    command: sh
+    working_dir: /app

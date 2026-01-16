@@ -23,6 +23,7 @@ export interface AppState {
   tasks: Task[];
   offPlatformEntries: OffPlatformTimeEntry[];
   projectOverrides: ProjectOverride[];
+  projectNameMap: Record<string, string>;
   
   // Active timers (real-time)
   activeTimers: ActiveTimerState;
@@ -91,6 +92,7 @@ export interface AppActions {
   syncWithChromeStorage: () => Promise<void>;
   subscribeToStorageChanges: () => void;
   unsubscribeFromStorageChanges: () => void;
+  setProjectNameMapping: (projectId: string, projectName: string) => Promise<void>;
 }
 
 export type AppStore = AppState & AppActions;

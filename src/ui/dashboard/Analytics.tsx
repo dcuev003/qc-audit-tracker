@@ -15,7 +15,6 @@ import {
 	Target,
 	PieChart,
 	LineChart,
-	Award,
 	AlertTriangle,
 } from "lucide-react";
 import {
@@ -24,7 +23,6 @@ import {
 	PieChart as RechartsPieChart,
 	Pie,
 	Cell,
-	Bar,
 	ComposedChart,
 	XAxis,
 	YAxis,
@@ -66,12 +64,12 @@ const AnalyticsTab: React.FC = React.memo(() => {
 	const lastActiveStateRef = useRef<boolean>(false);
 
 	// Get user settings from store (these don't change frequently)
-	const userSettings = useStore((state: AppStore) => state.settings);
+	const userSettings = useStore((state: AppStore) => state.settings) || {};
 
 	// Function to create fresh entries from store state
 	const createEntriesFromStore = () => {
 		const state = useStore.getState();
-		const { tasks, offPlatformEntries, activeTimers } = state;
+		const { tasks, offPlatformEntries, activeTimers, projectNameMap = {} } = state;
 		const currentTime = Date.now();
 
 		const taskEntries = tasks.map(taskToDashboardEntry);
@@ -103,13 +101,23 @@ const AnalyticsTab: React.FC = React.memo(() => {
 			...taskEntries,
 			...offPlatformDashboardEntries,
 		];
-		return allEntries.sort((a, b) => {
+		const sorted = allEntries.sort((a, b) => {
 			// Active entries first
 			if (a.status === "in-progress" && b.status !== "in-progress") return -1;
 			if (a.status !== "in-progress" && b.status === "in-progress") return 1;
 
 			// Then by start time (newest first)
 			return b.startTime - a.startTime;
+		});
+
+		return sorted.map((entry) => {
+			if (entry.projectId && !entry.projectName) {
+				const mapped = projectNameMap[entry.projectId];
+				if (mapped) {
+					return { ...entry, projectName: mapped };
+				}
+			}
+			return entry;
 		});
 	};
 
@@ -416,192 +424,69 @@ const AnalyticsTab: React.FC = React.memo(() => {
 		}
 	}, [cachedEntries, timeRange]);
 
-	// Estimation accuracy data with overrides and max time reference
-	const estimationAccuracy = useMemo(() => {
-		const projectStats: Record<
+	// Average vs Max Limit per project (hours)
+	const avgVsLimit = useMemo(() => {
+		const stats: Record<
 			string,
-			{
-				estimated: number;
-				actual: number;
-				count: number;
-				maxTime: number;
-				fullName: string;
-			}
+			{ totalActual: number; count: number; limit: number; fullName: string }
 		> = {};
-
 		cachedEntries
 			.filter((e) => e.type === "audit")
 			.forEach((entry) => {
-				// Use project overrides for display name
-				// Create task-like object for utility functions
 				const taskLike = {
 					projectId: entry.projectId,
 					projectName: entry.projectName,
 					maxTime: entry.maxTime || 0,
 				} as any;
-
-				const effectiveProjectName = entry.projectId
+				const name = entry.projectId
 					? getEffectiveProjectName(taskLike, cachedProjectOverrides)
 					: entry.projectName || "Unknown";
-
-				// Get effective max time (with overrides applied)
-				const effectiveMaxTimeSeconds = getEffectiveMaxTime(taskLike, cachedProjectOverrides);
-				const effectiveMaxTime = effectiveMaxTimeSeconds / 3600; // Convert to hours
-
-				if (!projectStats[effectiveProjectName]) {
-					projectStats[effectiveProjectName] = {
-						estimated: 0,
-						actual: 0,
+				const limitHours =
+					getEffectiveMaxTime(taskLike, cachedProjectOverrides) / 3600;
+				if (!limitHours || limitHours <= 0) return; // skip projects without limits
+				if (!stats[name]) {
+					stats[name] = {
+						totalActual: 0,
 						count: 0,
-						maxTime: effectiveMaxTime,
-						fullName: effectiveProjectName,
+						limit: limitHours,
+						fullName: name,
 					};
 				} else {
-					// Use the max effective time encountered for each project
-					projectStats[effectiveProjectName].maxTime = Math.max(
-						projectStats[effectiveProjectName].maxTime,
-						effectiveMaxTime
-					);
+					stats[name].limit = Math.max(stats[name].limit, limitHours);
 				}
-				projectStats[effectiveProjectName].estimated += effectiveMaxTime;
-				projectStats[effectiveProjectName].actual +=
-					entry.duration / (1000 * 60 * 60);
-				projectStats[effectiveProjectName].count++;
+				stats[name].totalActual += entry.duration / (1000 * 60 * 60);
+				stats[name].count += 1;
 			});
-
-		const result = Object.entries(projectStats)
-			.filter(([, stats]) => stats.count > 0 && stats.maxTime > 0) // Only include projects with max time data
-			.map(([project, stats]) => ({
-				project:
-					project.length > 10 ? project.substring(0, 10) + "..." : project,
-				fullName: stats.fullName,
-				estimated: stats.maxTime, // Use maxTime as the target
-				actual: parseFloat((stats.actual / stats.count).toFixed(1)),
-				maxTime: stats.maxTime,
-				accuracy: Math.round(
-					(Math.min(stats.maxTime, stats.actual / stats.count) /
-						Math.max(stats.maxTime, stats.actual / stats.count)) *
-						100
-				),
-				taskCount: stats.count,
-			}))
-			.sort((a, b) => b.taskCount - a.taskCount) // Sort by task count
-			.slice(0, 4);
-		
-		console.log('EstimationAccuracy result:', result);
-		return result;
-	}, [cachedEntries, cachedProjectOverrides]);
-
-	// Project performance analysis - comprehensive stats
-	const projectPerformance = useMemo(() => {
-		const projectStats: Record<
-			string,
-			{
-				totalTime: number;
-				taskCount: number;
-				maxTime: number;
-				overMaxCount: number;
-				fullName: string;
-				efficiencyScore: number;
-			}
-		> = {};
-
-		cachedEntries
-			.filter((e) => e.type === "audit")
-			.forEach((entry) => {
-				// Create task-like object for utility functions
-				const taskLike = {
-					projectId: entry.projectId,
-					projectName: entry.projectName,
-					maxTime: entry.maxTime || 0,
-				} as any;
-
-				// Use project overrides for display name
-				const effectiveProjectName = entry.projectId
-					? getEffectiveProjectName(taskLike, cachedProjectOverrides)
-					: entry.projectName || "Unknown";
-
-				// Get effective max time (with overrides applied)
-				const effectiveMaxTimeSeconds = getEffectiveMaxTime(taskLike, cachedProjectOverrides);
-				const effectiveMaxTime = effectiveMaxTimeSeconds / 3600; // Convert to hours
-
-				if (!projectStats[effectiveProjectName]) {
-					projectStats[effectiveProjectName] = {
-						totalTime: 0,
-						taskCount: 0,
-						maxTime: effectiveMaxTime,
-						overMaxCount: 0,
-						fullName: effectiveProjectName,
-						efficiencyScore: 0,
-					};
-				} else {
-					// Update max time to highest effective time seen
-					if (effectiveMaxTime > projectStats[effectiveProjectName].maxTime) {
-						projectStats[effectiveProjectName].maxTime = effectiveMaxTime;
-					}
-				}
-
-				const entryHours = entry.duration / (1000 * 60 * 60);
-
-				projectStats[effectiveProjectName].totalTime += entryHours;
-				projectStats[effectiveProjectName].taskCount++;
-
-				// Count tasks that went over effective max time
-				if (effectiveMaxTime > 0 && entryHours > effectiveMaxTime) {
-					projectStats[effectiveProjectName].overMaxCount++;
-				}
-			});
-
-		const result = Object.entries(projectStats)
-			.filter(([, stats]) => stats.taskCount > 0 && stats.maxTime > 0) // Only include projects with tasks and max time
-			.map(([project, stats]) => {
-				const avgTime =
-					stats.taskCount > 0 ? stats.totalTime / stats.taskCount : 0;
-				const overMaxRate =
-					stats.taskCount > 0
-						? (stats.overMaxCount / stats.taskCount) * 100
-						: 0;
-				// Efficiency: how close to max time without going over (ideal is 80-90%)
-				const efficiency =
-					stats.maxTime > 0
-						? Math.min(100, (avgTime / stats.maxTime) * 100)
-						: 100;
-
+		const result = Object.entries(stats)
+			.map(([project, s]) => {
+				const avgActual = s.count > 0 ? s.totalActual / s.count : 0;
+				const utilization =
+					s.limit > 0 ? Math.min(100, (avgActual / s.limit) * 100) : 0;
 				return {
 					project:
-						project.length > 12 ? project.substring(0, 12) + "..." : project,
-					fullName: stats.fullName,
-					avgTime: parseFloat(avgTime.toFixed(1)),
-					tasks: stats.taskCount,
-					maxTime: parseFloat(stats.maxTime.toFixed(1)),
-					overMaxCount: stats.overMaxCount,
-					overMaxRate: parseFloat(overMaxRate.toFixed(1)),
-					efficiency: parseFloat(efficiency.toFixed(1)),
-					// Color coding based on efficiency and over-max rate
-					performanceColor:
-						overMaxRate > 30
-							? "#EF4444" // Red for high over-max rate
-							: efficiency > 90
-							? "#F59E0B" // Orange for too close to max
-							: efficiency >= 70
-							? "#10B981" // Green for good efficiency
-							: "#6B7280", // Gray for low efficiency
+						project.length > 10 ? project.substring(0, 10) + "..." : project,
+					fullName: s.fullName,
+					limit: parseFloat(s.limit.toFixed(1)),
+					avgActual: parseFloat(avgActual.toFixed(1)),
+					utilization: parseFloat(utilization.toFixed(0)),
+					taskCount: s.count,
 				};
 			})
-			.sort((a, b) => b.tasks - a.tasks) // Sort by number of tasks
+			.sort((a, b) => b.taskCount - a.taskCount)
 			.slice(0, 5);
-		
-		console.log('ProjectPerformance result:', result);
+		console.log("AvgVsLimit result:", result);
 		return result;
 	}, [cachedEntries, cachedProjectOverrides]);
 
+	// (Removed) Project Performance Analysis – deprecated
+
 	// Mock score distribution (as mentioned, this isn't implemented yet)
-	const scoreDistribution = [
-		{ range: "5", value: 45, count: 15, color: "#10B981" },
-		{ range: "4", value: 30, count: 10, color: "#3B82F6" },
-		{ range: "3", value: 20, count: 7, color: "#F59E0B" },
-		{ range: "1-2", value: 5, count: 2, color: "#EF4444" },
-	];
+	// const scoreDistribution = [
+	// 	{ range: "5", value: 45, count: 15, color: "#10B981" },
+	// 	{ range: "4", value: 30, count: 10, color: "#3B82F6" },
+	// 	{ range: "3", value: 20, count: 7, color: "#F59E0B" },
+	// 	{ range: "1-2", value: 5, count: 2, color: "#EF4444" },
+	// ];
 
 	// Overtime frequency data (weekly)
 	const overtimeData = useMemo(() => {
@@ -960,16 +845,16 @@ const AnalyticsTab: React.FC = React.memo(() => {
 
 				{/* Second Row of Charts */}
 				<div className='grid grid-cols-2 gap-6 mb-6'>
-					{/* Estimation Accuracy */}
+					{/* Avg vs Max Limit */}
 					<div className='bg-white rounded-lg border border-gray-200 p-6'>
 						<div className='flex items-center gap-2 mb-4'>
 							<Target className='w-5 h-5 text-gray-700' />
 							<h2 className='text-lg font-semibold text-gray-900'>
-								Actual vs Estimated Hours
+								Average vs Max Time Limit
 							</h2>
 						</div>
 						<ResponsiveContainer width='100%' height={200}>
-							<ComposedChart data={estimationAccuracy}>
+							<ComposedChart data={avgVsLimit}>
 								<CartesianGrid strokeDasharray='3 3' stroke='#f0f0f0' />
 								<XAxis dataKey='project' tick={{ fontSize: 12 }} />
 								<YAxis
@@ -984,23 +869,21 @@ const AnalyticsTab: React.FC = React.memo(() => {
 								<Tooltip
 									content={({ active, payload }) => {
 										if (active && payload && payload.length) {
-											const data = payload[0].payload;
+											const data = payload[0].payload as any;
 											return (
 												<div className='bg-white p-3 border border-gray-200 rounded-lg shadow-lg'>
 													<p className='font-medium text-gray-900'>
 														{data.fullName}
 													</p>
 													<p className='text-red-600'>
-														Max Time: {data.maxTime.toFixed(1)}h
+														Max Time: {data.limit}h
 													</p>
 													<p className='text-blue-600'>
-														Avg Actual: {data.actual}h
-													</p>
-													<p className='text-gray-500'>
-														Target (Max): {data.estimated}h
+														Avg Actual: {data.avgActual}h
 													</p>
 													<p className='text-sm text-gray-500'>
-														{data.taskCount} tasks
+														{data.taskCount} tasks · Utilization{" "}
+														{data.utilization}%
 													</p>
 												</div>
 											);
@@ -1009,30 +892,33 @@ const AnalyticsTab: React.FC = React.memo(() => {
 									}}
 								/>
 								<Legend />
-								{/* Reference line showing max time per project */}
 								<Line
 									type='monotone'
-									dataKey='maxTime'
+									dataKey='limit'
 									stroke='#EF4444'
 									strokeDasharray='5 5'
 									strokeWidth={2}
 									name='Max Time Limit'
-									dot={{ fill: "#EF4444", r: 4 }}
+									dot={{ r: 3, fill: "#EF4444" }}
 								/>
-								<Bar dataKey='estimated' fill='#94A3B8' name='Target (Max Time)' />
-								<Bar dataKey='actual' fill='#3B82F6' name='Avg Actual' />
+								<Line
+									type='monotone'
+									dataKey='avgActual'
+									stroke='#3B82F6'
+									strokeWidth={2}
+									name='Avg Actual'
+									dot={{ r: 3, fill: "#3B82F6" }}
+								/>
 							</ComposedChart>
 						</ResponsiveContainer>
 						<div className='mt-4 grid grid-cols-2 gap-4 text-sm'>
 							<div className='text-center'>
-								<div className='text-gray-600'>Average Accuracy</div>
+								<div className='text-gray-600'>Average Utilization</div>
 								<div className='text-lg font-bold text-gray-900'>
-									{estimationAccuracy.length > 0
+									{avgVsLimit.length > 0
 										? Math.round(
-												estimationAccuracy.reduce(
-													(sum, item) => sum + item.accuracy,
-													0
-												) / estimationAccuracy.length
+												avgVsLimit.reduce((sum, i) => sum + i.utilization, 0) /
+													avgVsLimit.length
 										  )
 										: 0}
 									%
@@ -1045,170 +931,6 @@ const AnalyticsTab: React.FC = React.memo(() => {
 										cachedEntries.filter((e) => e.type === "audit" && e.maxTime)
 											.length
 									}
-								</div>
-							</div>
-						</div>
-					</div>
-
-					{/* Project Performance Analysis */}
-					<div className='bg-white rounded-lg border border-gray-200 p-6'>
-						<div className='flex items-center gap-2 mb-4'>
-							<Target className='w-5 h-5 text-gray-700' />
-							<h2 className='text-lg font-semibold text-gray-900'>
-								Project Performance Analysis
-							</h2>
-						</div>
-						<ResponsiveContainer width='100%' height={200}>
-							<ComposedChart data={projectPerformance} layout='horizontal'>
-								<CartesianGrid strokeDasharray='3 3' stroke='#f0f0f0' />
-								<XAxis
-									type='number'
-									tick={{ fontSize: 12 }}
-									label={{
-										value: "Hours",
-										position: "insideBottom",
-										offset: -5,
-										style: { textAnchor: "middle", fontSize: "12px" },
-									}}
-								/>
-								<YAxis
-									dataKey='project'
-									type='category'
-									tick={{ fontSize: 12 }}
-									width={80}
-								/>
-								<Tooltip
-									content={({ active, payload }) => {
-										if (active && payload && payload.length) {
-											const data = payload[0].payload;
-											return (
-												<div className='bg-white p-3 border border-gray-200 rounded-lg shadow-lg max-w-xs'>
-													<p className='font-medium text-gray-900'>
-														{data.fullName}
-													</p>
-													<p className='text-blue-600'>
-														Avg Time: {data.avgTime}h
-													</p>
-													<p className='text-red-600'>
-														Max Time: {data.maxTime.toFixed(1)}h
-													</p>
-													<p className='text-gray-600'>Tasks: {data.tasks}</p>
-													<p className='text-sm text-gray-500'>
-														Efficiency: {data.efficiency}%
-													</p>
-													<p className='text-sm text-orange-600'>
-														Over Max: {data.overMaxCount} ({data.overMaxRate}%)
-													</p>
-												</div>
-											);
-										}
-										return null;
-									}}
-								/>
-								<Legend />
-								{/* Max time reference line */}
-								<Line
-									type='monotone'
-									dataKey='maxTime'
-									stroke='#EF4444'
-									strokeDasharray='3 3'
-									strokeWidth={1}
-									name='Max Time'
-									dot={false}
-								/>
-								{/* Average time bars with performance-based colors */}
-								<Bar dataKey='avgTime' name='Avg Time' radius={[0, 4, 4, 0]}>
-									{projectPerformance.map((entry, index) => (
-										<Cell key={`cell-${index}`} fill={entry.performanceColor} />
-									))}
-								</Bar>
-							</ComposedChart>
-						</ResponsiveContainer>
-						<div className='mt-4 grid grid-cols-3 gap-4 text-sm'>
-							<div className='text-center'>
-								<div className='text-gray-600'>Best Efficiency</div>
-								<div className='text-lg font-bold text-green-600'>
-									{projectPerformance.length > 0
-										? Math.max(
-												...projectPerformance.map((p) => p.efficiency)
-										  ).toFixed(0)
-										: 0}
-									%
-								</div>
-							</div>
-							<div className='text-center'>
-								<div className='text-gray-600'>Most Active</div>
-								<div className='text-lg font-bold text-blue-600'>
-									{projectPerformance[0]?.project || "N/A"}
-								</div>
-							</div>
-							<div className='text-center'>
-								<div className='text-gray-600'>Avg Over-Max Rate</div>
-								<div className='text-lg font-bold text-orange-600'>
-									{projectPerformance.length > 0
-										? (
-												projectPerformance.reduce(
-													(sum, p) => sum + p.overMaxRate,
-													0
-												) / projectPerformance.length
-										  ).toFixed(1)
-										: 0}
-									%
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				{/* Third Row of Charts */}
-				<div className='grid grid-cols-2 gap-6'>
-					{/* Score Distribution */}
-					<div className='bg-white rounded-lg border border-gray-200 p-6'>
-						<div className='flex items-center gap-2 mb-4'>
-							<Award className='w-5 h-5 text-gray-700' />
-							<h2 className='text-lg font-semibold text-gray-900'>
-								Score Distribution
-							</h2>
-						</div>
-						<div className='flex items-center justify-between'>
-							<ResponsiveContainer width='50%' height={200}>
-								<RechartsPieChart>
-									<Pie
-										data={scoreDistribution}
-										cx='50%'
-										cy='50%'
-										outerRadius={80}
-										dataKey='value'>
-										{scoreDistribution.map((entry, index) => (
-											<Cell key={`cell-${index}`} fill={entry.color} />
-										))}
-									</Pie>
-									<Tooltip />
-								</RechartsPieChart>
-							</ResponsiveContainer>
-							<div className='space-y-3'>
-								{scoreDistribution.map((score, index) => (
-									<div
-										key={index}
-										className='flex items-center justify-between text-sm'>
-										<div className='flex items-center gap-2'>
-											<div
-												className='w-3 h-3 rounded-full'
-												style={{ backgroundColor: score.color }}></div>
-											<span className='text-gray-700'>Score {score.range}</span>
-										</div>
-										<span className='text-gray-600 font-medium'>
-											- {score.count} tasks ({score.value}%)
-										</span>
-									</div>
-								))}
-								<div className='pt-3 border-t'>
-									<div className='flex justify-between'>
-										<span className='text-sm text-gray-600'>Average Score</span>
-										<span className='text-sm font-bold text-gray-900'>
-											86.5
-										</span>
-									</div>
 								</div>
 							</div>
 						</div>
@@ -1283,6 +1005,50 @@ const AnalyticsTab: React.FC = React.memo(() => {
 						</div>
 					</div>
 				</div>
+
+				{/* Third Row of Charts */}
+				{/* <div className='grid grid-cols-2 gap-6'> */}
+				{/* Score Distribution (commented out for now) */}
+				{/*
+					<div className='bg-white rounded-lg border border-gray-200 p-6'>
+						<div className='flex items-center gap-2 mb-4'>
+							<Award className='w-5 h-5 text-gray-700' />
+							<h2 className='text-lg font-semibold text-gray-900'>
+								Score Distribution
+							</h2>
+						</div>
+						<div className='flex items-center justify-between'>
+							<ResponsiveContainer width='50%' height={200}>
+								<RechartsPieChart>
+									<Pie data={scoreDistribution} cx='50%' cy='50%' outerRadius={80} dataKey='value'>
+										{scoreDistribution.map((entry, index) => (
+											<Cell key={`cell-${index}`} fill={entry.color} />
+										))}
+									</Pie>
+									<Tooltip />
+								</RechartsPieChart>
+							</ResponsiveContainer>
+							<div className='space-y-3'>
+								{scoreDistribution.map((score, index) => (
+									<div key={index} className='flex items-center justify-between text-sm'>
+										<div className='flex items-center gap-2'>
+											<div className='w-3 h-3 rounded-full' style={{ backgroundColor: score.color }}></div>
+											<span className='text-gray-700'>Score {score.range}</span>
+										</div>
+										<span className='text-gray-600 font-medium'>- {score.count} tasks ({score.value}%)</span>
+									</div>
+								))}
+								<div className='pt-3 border-t'>
+									<div className='flex justify-between'>
+										<span className='text-sm text-gray-600'>Average Score</span>
+										<span className='text-sm font-bold text-gray-900'>86.5</span>
+									</div>
+								</div>
+							</div>
+					</div>
+
+					</div>					*/}
+				{/* </div> */}
 			</div>
 		</div>
 	);

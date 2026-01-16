@@ -16,6 +16,8 @@ export interface Task {
   endTime?: number; // timestamp (completionTime or transitionTime)
 }
 
+export type DatePreset = "today" | "yesterday" | "week" | "last-week" | "month" | "last-month";
+
 export interface OffPlatformTimeEntry {
   id: string;
   type: "auditing" | "self_onboarding" | "validation" | "onboarding_oh" | "total_over_max_time" | "other";
